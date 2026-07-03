@@ -28,9 +28,9 @@ The goal is to make migrations smaller, safer, and easier to review.
 
 ---
 # Live Link Of Project
-```txt
+
 https://codeshiftweb.vercel.app/
-```
+
 ## Demo
 
 Demo Repository:
