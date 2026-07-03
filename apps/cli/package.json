@@ -1,0 +1,22 @@
+{
+  "name": "@codeshift/cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "codeshift-ai": "./dist/index.js"
+  },
+  "dependencies": {
+    "@codeshift/ai": "*",
+    "@codeshift/analyzer": "*",
+    "@codeshift/migrator": "*",
+    "@codeshift/shared": "*"
+  },
+  "scripts": {
+    "prebuild": "npm --prefix ../.. run build --workspace=@codeshift/ai --workspace=@codeshift/analyzer --workspace=@codeshift/migrator",
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test dist/*.test.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\""
+  }
+}

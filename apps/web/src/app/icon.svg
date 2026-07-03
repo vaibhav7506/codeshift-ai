@@ -1,0 +1,111 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="64" y1="32" x2="448" y2="480" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111827"/>
+      <stop offset="1" stop-color="#05070A"/>
+    </linearGradient>
+
+    <linearGradient id="teal" x1="120" y1="170" x2="250" y2="350" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2DD4BF"/>
+      <stop offset="1" stop-color="#0F766E"/>
+    </linearGradient>
+
+    <linearGradient id="amber" x1="250" y1="170" x2="410" y2="350" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FBBF24"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+
+    <linearGradient id="shift" x1="190" y1="255" x2="340" y2="255" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2DD4BF"/>
+      <stop offset="0.48" stop-color="#2DD4BF"/>
+      <stop offset="0.58" stop-color="#FBBF24"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+
+    <filter id="softShadow" x="0" y="0" width="512" height="512" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
+
+    <filter id="innerGlow" x="70" y="70" width="372" height="372" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#2DD4BF" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- App tile -->
+  <rect
+    x="48"
+    y="48"
+    width="416"
+    height="416"
+    rx="92"
+    fill="url(#bg)"
+    filter="url(#softShadow)"
+  />
+
+  <!-- Subtle border -->
+  <rect
+    x="49.5"
+    y="49.5"
+    width="413"
+    height="413"
+    rx="90"
+    stroke="#243041"
+    stroke-opacity="0.75"
+    stroke-width="3"
+  />
+
+  <!-- Left code bracket -->
+  <path
+    d="M197 169L117 249C113.1 252.9 113.1 259.1 117 263L197 343C203.3 349.3 214 344.8 214 335.9V306.2C214 303.5 212.9 300.9 211 299L168 256L211 213C212.9 211.1 214 208.5 214 205.8V176.1C214 167.2 203.3 162.7 197 169Z"
+    fill="url(#teal)"
+    filter="url(#innerGlow)"
+  />
+
+  <!-- Right code bracket -->
+  <path
+    d="M315 169L395 249C398.9 252.9 398.9 259.1 395 263L315 343C308.7 349.3 298 344.8 298 335.9V306.2C298 303.5 299.1 300.9 301 299L344 256L301 213C299.1 211.1 298 208.5 298 205.8V176.1C298 167.2 308.7 162.7 315 169Z"
+    fill="url(#amber)"
+  />
+
+  <!-- Shift arrow -->
+  <path
+    d="M213 238H283V211C283 205.7 289.4 203.1 293.1 206.9L351.2 265C353.5 267.3 353.5 270.7 351.2 273L293.1 331.1C289.4 334.9 283 332.3 283 327V300H213C206.9 300 202 295.1 202 289V249C202 242.9 206.9 238 213 238Z"
+    fill="url(#shift)"
+  />
+
+  <!-- Motion/code lines -->
+  <rect x="176" y="225" width="34" height="13" rx="6.5" fill="#2DD4BF"/>
+  <rect x="161" y="256" width="48" height="13" rx="6.5" fill="#2DD4BF"/>
+  <rect x="186" y="287" width="42" height="13" rx="6.5" fill="#2DD4BF"/>
+
+  <!-- AI spark -->
+  <path
+    d="M256 92L266.8 120.2L295 131L266.8 141.8L256 170L245.2 141.8L217 131L245.2 120.2L256 92Z"
+    fill="url(#amber)"
+  />
+
+  <!-- AI node lines -->
+  <path
+    d="M256 170V202"
+    stroke="#FBBF24"
+    stroke-width="8"
+    stroke-linecap="round"
+  />
+  <path
+    d="M239 155L212 181"
+    stroke="#FBBF24"
+    stroke-width="8"
+    stroke-linecap="round"
+  />
+  <path
+    d="M273 155L300 181"
+    stroke="#FBBF24"
+    stroke-width="8"
+    stroke-linecap="round"
+  />
+
+  <!-- AI nodes -->
+  <circle cx="256" cy="211" r="12" stroke="#FBBF24" stroke-width="8"/>
+  <circle cx="202" cy="191" r="12" stroke="#FBBF24" stroke-width="8"/>
+  <circle cx="310" cy="191" r="12" stroke="#FBBF24" stroke-width="8"/>
+</svg>
