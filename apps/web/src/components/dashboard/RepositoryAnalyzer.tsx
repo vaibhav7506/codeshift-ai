@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { MigrationPlan as MigrationPlanData, RepositoryAnalysis } from "@codeshift/shared";
 import { AnalysisPreview } from "./AnalysisPreview";
 import { MigrationPlan } from "./MigrationPlan";
+import type { DashboardWorkflowState } from "./MigrationStepper";
 import { ANALYSIS_STEPS, RepoInput } from "./RepoInput";
 
 interface AnalysisApiResponse {
@@ -22,7 +23,11 @@ interface PlanApiResponse {
   };
 }
 
-export function RepositoryAnalyzer() {
+export function RepositoryAnalyzer({
+  onWorkflowChange,
+}: {
+  onWorkflowChange: (workflow: DashboardWorkflowState) => void;
+}) {
   const [repoUrl, setRepoUrl] = useState("");
   const [analysis, setAnalysis] = useState<RepositoryAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -51,6 +56,7 @@ export function RepositoryAnalyzer() {
     setPlan(null);
     setPlanError(null);
     setCurrentStep(0);
+    onWorkflowChange({ phase: "ANALYZING" });
 
     intervalRef.current = setInterval(() => {
       setCurrentStep((step) => Math.min(step + 1, ANALYSIS_STEPS.length - 2));
@@ -77,12 +83,14 @@ export function RepositoryAnalyzer() {
       await new Promise((resolve) => setTimeout(resolve, 300));
       setAnalysis(result.analysis);
       setSelectedScope(result.analysis.recommendedScopes[0]?.path ?? null);
+      onWorkflowChange({ phase: "ANALYZED" });
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
           ? caughtError.message
           : "The repository analysis could not be completed.",
       );
+      onWorkflowChange({ phase: "ERROR", failedStep: "analysis" });
     } finally {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -96,6 +104,7 @@ export function RepositoryAnalyzer() {
     setSelectedScope(scope);
     setPlan(null);
     setPlanError(null);
+    onWorkflowChange({ phase: "ANALYZED" });
   };
 
   const generatePlan = async () => {
@@ -103,6 +112,7 @@ export function RepositoryAnalyzer() {
 
     setIsGeneratingPlan(true);
     setPlanError(null);
+    onWorkflowChange({ phase: "PLANNING" });
 
     try {
       const response = await fetch("/api/plans/generate", {
@@ -124,6 +134,7 @@ export function RepositoryAnalyzer() {
       }
 
       setPlan(result.plan);
+      onWorkflowChange({ phase: "PLAN_READY" });
       requestAnimationFrame(() => {
         document
           .getElementById("migration-plan")
@@ -135,6 +146,7 @@ export function RepositoryAnalyzer() {
           ? caughtError.message
           : "The migration plan could not be generated.",
       );
+      onWorkflowChange({ phase: "ERROR", failedStep: "plan" });
     } finally {
       setIsGeneratingPlan(false);
     }
@@ -142,6 +154,7 @@ export function RepositoryAnalyzer() {
 
   const editScope = () => {
     setPlan(null);
+    onWorkflowChange({ phase: "ANALYZED" });
     requestAnimationFrame(() => {
       document
         .getElementById("scope-selector")
