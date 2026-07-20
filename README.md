@@ -657,7 +657,7 @@ This project is licensed under the MIT License.
 <div align="center">
 
 Built and maintained by
-**[Vaibhav Sharma](https://vaibhav7506portfolio.vercel.app/)**
+**[Vaibhav Sharma](https://www.linkedin.com/in/vaibhav-sharma-996aa8249/)**
 
 [Portfolio](https://vaibhav7506portfolio.vercel.app/) · [GitHub](https://github.com/vaibhav7506)
 
