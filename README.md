@@ -56,6 +56,88 @@ Every migration begins with analysis and planning. Source-code changes happen lo
 
 ---
 
+## Quick Start: Migrate a JavaScript Project
+
+CodeShift AI performs migrations through its local CLI. Run the following commands from the root of the JavaScript repository you want to migrate.
+
+### 1. Analyze the repository
+
+```bash
+codeshift-ai analyze
+```
+
+This detects the framework, package manager, module system, JavaScript and TypeScript file counts, available validation scripts, migration readiness, and recommended migration scopes.
+
+No source files are modified.
+
+### 2. Generate a migration plan
+
+```bash
+codeshift-ai plan --target js-to-ts --path src/utils
+```
+
+Replace `src/utils` with the directory you want to migrate.
+
+This creates a deterministic migration plan without modifying source files.
+
+### 3. Apply the migration
+
+```bash
+codeshift-ai migrate --target js-to-ts --path src/utils
+```
+
+This is the command that modifies the selected source files.
+
+Depending on the selected scope, it may:
+
+* rename `.js` files to `.ts`;
+* rename `.jsx` files to `.tsx`;
+* create or update `tsconfig.json`;
+* apply conservative syntax transformations;
+* preserve complex CommonJS patterns and generate warnings;
+* produce a patch and migration summary.
+
+CodeShift AI modifies only the selected migration scope.
+
+### 4. Validate the migrated project
+
+```bash
+codeshift-ai validate
+```
+
+This runs the existing `test`, `build`, `typecheck`, and `lint` scripts defined by the target repository.
+
+Missing scripts are recorded as `SKIPPED`.
+
+### 5. Review the changes
+
+```bash
+git diff
+```
+
+Generated artifacts are available inside:
+
+```text
+.codeshift-ai/
+├── analysis.json
+├── migration-plan.json
+├── migration-summary.json
+├── patch.diff
+├── validation-result.json
+└── validation-logs.txt
+```
+
+### 6. Create a pull request
+
+```bash
+codeshift-ai pr
+```
+
+CodeShift AI asks for separate confirmation before creating a branch, committing files, pushing the branch, and opening the pull request.
+
+It never performs these Git operations during the migration command.
+
+
 ## Project Status
 
 | Area                      | Status                                   |
