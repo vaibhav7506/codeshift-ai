@@ -1,10 +1,12 @@
 import { createMigrationCampaign } from "@codeshift/platform/campaign-runtime";
 import { NextResponse } from "next/server";
+import { apiError, requireApiPermission } from "@/lib/enterprise-api";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
+    const context = requireApiPermission(request, "CAMPAIGN_MANAGE");
     const body: unknown = await request.json();
     if (!isCampaignRequest(body)) {
       return errorResponse(
@@ -16,8 +18,8 @@ export async function POST(request: Request) {
 
     const campaign = createMigrationCampaign({
       id: body.id,
-      organizationId: "personal",
-      workspaceId: "personal",
+      organizationId: context.organizationId,
+      workspaceId: context.workspaceId,
       repositoryId: body.repositoryId,
       name: body.name,
       selectedRecipes: body.selectedRecipes,
@@ -32,6 +34,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ campaign }, { status: 201 });
   } catch (error) {
+    if (error instanceof Error && "code" in error && error.code === "FORBIDDEN") {
+      return apiError(error);
+    }
     if (error instanceof SyntaxError) {
       return errorResponse("INVALID_REQUEST", "The request body is not valid JSON.", 400);
     }

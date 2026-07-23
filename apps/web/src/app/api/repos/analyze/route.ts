@@ -8,6 +8,7 @@ import {
   fetchPublicGitHubRepository,
   GitHubApiError,
 } from "@/lib/github";
+import { apiError, requireApiPermission } from "@/lib/enterprise-api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,6 +19,7 @@ interface AnalyzeRequest {
 
 export async function POST(request: Request) {
   try {
+    requireApiPermission(request, "ANALYSIS_RUN");
     const body: unknown = await request.json();
 
     if (!isAnalyzeRequest(body)) {
@@ -41,6 +43,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ analysis });
   } catch (error) {
+    if (error instanceof Error && "code" in error && error.code === "FORBIDDEN") {
+      return apiError(error);
+    }
     if (error instanceof RepositoryInputError) {
       return errorResponse(error.code, error.message, 400);
     }

@@ -29,6 +29,11 @@
       "types": "./src/recipe-catalog.ts",
       "import": "./dist/recipe-catalog.js",
       "default": "./dist/recipe-catalog.js"
+    },
+    "./enterprise-runtime": {
+      "types": "./src/enterprise.ts",
+      "import": "./dist/enterprise.js",
+      "default": "./dist/enterprise.js"
     }
   },
   "dependencies": {

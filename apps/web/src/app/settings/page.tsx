@@ -16,7 +16,7 @@ export default function SettingsPage() {
             Workspace preferences
           </h2>
           <p className="mt-1.5 text-sm text-text-secondary">
-            Appearance and BYOK credentials are stored in this browser.
+            Appearance is local; BYOK credentials are encrypted and workspace scoped.
           </p>
         </div>
 

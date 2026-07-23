@@ -9,6 +9,7 @@ import type {
   RepositoryAnalysis,
 } from "@codeshift/shared";
 import { NextResponse } from "next/server";
+import { apiError, requireApiPermission } from "@/lib/enterprise-api";
 
 export const runtime = "nodejs";
 
@@ -19,6 +20,7 @@ interface GeneratePlanRequest {
 
 export async function POST(request: Request) {
   try {
+    requireApiPermission(request, "CAMPAIGN_MANAGE");
     const body: unknown = await request.json();
 
     if (!isGeneratePlanRequest(body)) {
@@ -36,6 +38,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ plan });
   } catch (error) {
+    if (error instanceof Error && "code" in error && error.code === "FORBIDDEN") {
+      return apiError(error);
+    }
     if (error instanceof MigrationPlanInputError) {
       return errorResponse(
         error.code,
