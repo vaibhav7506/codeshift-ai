@@ -42,15 +42,12 @@ const analysis: RepositoryAnalysis = {
   difficulty: "MEDIUM",
 };
 
-test("default recipe registry exposes only the implemented JS to TS recipe", () => {
+test("default recipe registry exposes all completed modernization recipes", () => {
   const registry = createDefaultRecipeRegistry();
-  assert.deepEqual(
-    registry.list().map((entry) => entry.metadata.id),
-    ["js-to-ts"],
-  );
-  assert.equal(registry.list({ includeDisabled: true }).length, 6);
+  assert.equal(registry.list().length, 11);
+  assert.equal(registry.list({ includeDisabled: true }).length, 11);
   assert.equal(registry.get("js-to-ts").version, "1.0.0");
-  assert.throws(() => registry.get("express-to-hono"), /not available/);
+  assert.equal(registry.get("express-to-hono").version, "1.0.0");
 });
 
 test("JS to TS recipe adapter preserves the existing migration plan contract", async () => {

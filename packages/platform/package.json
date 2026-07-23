@@ -24,6 +24,11 @@
       "types": "./src/js-to-ts-metadata.ts",
       "import": "./dist/js-to-ts-metadata.js",
       "default": "./dist/js-to-ts-metadata.js"
+    },
+    "./recipe-catalog-runtime": {
+      "types": "./src/recipe-catalog.ts",
+      "import": "./dist/recipe-catalog.js",
+      "default": "./dist/recipe-catalog.js"
     }
   },
   "dependencies": {

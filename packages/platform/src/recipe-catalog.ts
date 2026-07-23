@@ -1,0 +1,27 @@
+import { JS_TO_TS_METADATA } from "./js-to-ts-metadata.js";
+import { COMMONJS_TO_ESM_METADATA } from "./commonjs-to-esm.js";
+import { EXPRESS_TO_HONO_METADATA } from "./express-to-hono.js";
+import { CALLBACKS_TO_ASYNC_METADATA } from "./callbacks-to-async.js";
+import { REACT_CLASSES_TO_HOOKS_METADATA } from "./react-classes-to-hooks.js";
+import { CSS_TO_TAILWIND_METADATA } from "./css-to-tailwind.js";
+import {
+  DEPRECATED_DEPENDENCY_METADATA,
+  EDGE_RUNTIME_METADATA,
+  ESLINT_FLAT_METADATA,
+  JEST_TO_VITEST_METADATA,
+  TYPED_ENV_METADATA,
+} from "./additional-recipes.js";
+
+export const ACTIVE_RECIPE_CATALOG = [
+  JS_TO_TS_METADATA,
+  COMMONJS_TO_ESM_METADATA,
+  EXPRESS_TO_HONO_METADATA,
+  CALLBACKS_TO_ASYNC_METADATA,
+  REACT_CLASSES_TO_HOOKS_METADATA,
+  CSS_TO_TAILWIND_METADATA,
+  ESLINT_FLAT_METADATA,
+  JEST_TO_VITEST_METADATA,
+  TYPED_ENV_METADATA,
+  DEPRECATED_DEPENDENCY_METADATA,
+  EDGE_RUNTIME_METADATA,
+] as const;

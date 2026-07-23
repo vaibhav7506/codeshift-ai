@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Check, Circle, LockKeyhole, RotateCcw } from "lucide-react";
 import { AppShell } from "@/components/dashboard/AppShell";
 import { PageHeading } from "@/components/platform/PageHeading";
+import { RichDiffReview } from "@/components/platform/RichDiffReview";
 import { Badge } from "@/components/ui/Badge";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
@@ -52,6 +53,53 @@ export default async function CampaignDetailPage({
             </Card>
           ))}
         </div>
+        <div className="grid gap-5 xl:grid-cols-2">
+          <Card className="shadow-none">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold">Explainable risk map</h3>
+                <Badge tone="warning">{demoCampaign.riskScore}/100</Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {demoCampaign.riskFactors.map((factor) => (
+                <div key={factor.label}>
+                  <div className="flex items-center justify-between gap-3 text-xs">
+                    <span className="font-medium text-text-primary">{factor.label}</span>
+                    <span className="font-mono text-text-muted">+{factor.score}</span>
+                  </div>
+                  <div className="mt-1 flex items-center justify-between gap-4">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-muted">
+                      <div
+                        className="h-full rounded-full bg-warning"
+                        style={{ width: `${Math.min(100, factor.score * 4)}%` }}
+                      />
+                    </div>
+                    <span className="w-40 text-right text-[10px] text-text-muted">
+                      {factor.detail}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+          <Card className="shadow-none">
+            <CardHeader>
+              <h3 className="text-sm font-semibold">Validation contract</h3>
+            </CardHeader>
+            <CardContent className="grid gap-3 sm:grid-cols-2">
+              {Object.entries(demoCampaign.validationSummary).map(([label, value]) => (
+                <div key={label} className="rounded-lg border border-success/20 bg-success/5 p-3">
+                  <p className="font-mono text-[9px] uppercase tracking-[0.12em] text-text-muted">
+                    {label.replace(/([A-Z])/g, " $1")}
+                  </p>
+                  <p className="mt-2 text-xs font-semibold text-success">{value}</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+        <RichDiffReview change={demoCampaign.fileChange} />
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
           <Card className="shadow-none">
             <CardHeader>
@@ -99,7 +147,7 @@ export default async function CampaignDetailPage({
                   A commit, file hashes, lockfile hashes, configuration, and validation baseline will be captured before execution.
                 </p>
                 <Link
-                  href="/reports/phase-1-baseline"
+                  href="/reports/phase-2-validation"
                   className={buttonVariants({ variant: "ghost", size: "sm", className: "mt-3 px-0" })}
                 >
                   View analysis report

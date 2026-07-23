@@ -3,6 +3,7 @@ import { AppShell } from "@/components/dashboard/AppShell";
 import { PageHeading } from "@/components/platform/PageHeading";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { modernizationRecipes } from "@/lib/platform-demo";
 
 export default function RecipesPage() {
   return (
@@ -16,44 +17,46 @@ export default function RecipesPage() {
           title="Migration recipes"
           description="Only implemented and enabled recipe versions appear here. Experimental recipes remain hidden behind server-side feature flags."
         />
-        <Card className="shadow-none">
-          <CardHeader>
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-base font-semibold text-text-primary">
-                    JavaScript to TypeScript
-                  </h3>
-                  <Badge tone="success">Active</Badge>
-                  <Badge>v1.0.0</Badge>
+        <div className="grid gap-4 lg:grid-cols-2">
+          {modernizationRecipes.map(([name, source, target, mode]) => (
+            <Card key={name} className="shadow-none">
+              <CardHeader>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-sm font-semibold text-text-primary">{name}</h3>
+                      <Badge tone="success">Active</Badge>
+                      <Badge>v1.0.0</Badge>
+                    </div>
+                    <p className="mt-2 text-xs text-text-secondary">
+                      {source} → {target}
+                    </p>
+                  </div>
+                  <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-success/25 bg-success/10 text-success">
+                    <CheckCircle2 className="size-4" />
+                  </div>
                 </div>
-                <p className="mt-2 text-sm text-text-secondary">
-                  Existing conservative CLI transformation wrapped by the standard recipe contract.
-                </p>
-              </div>
-              <div className="flex size-10 items-center justify-center rounded-lg border border-success/25 bg-success/10 text-success">
-                <CheckCircle2 className="size-5" />
-              </div>
-            </div>
-          </CardHeader>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-3 text-sm sm:grid-cols-2">
+                  <RecipeDetail
+                    label="Execution mode"
+                    values={[mode, "Approved scope only"]}
+                  />
+                  <RecipeDetail
+                    label="Safety"
+                    values={["Checkpoint required", "Unsupported cases reported"]}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <Card className="shadow-none">
           <CardContent>
-            <div className="grid gap-4 text-sm md:grid-cols-3">
-              <RecipeDetail
-                label="Permissions"
-                values={["Read repository", "Write approved scope", "Run validation"]}
-              />
-              <RecipeDetail
-                label="Validation"
-                values={["Tests", "Build", "Typecheck", "Lint"]}
-              />
-              <RecipeDetail
-                label="Rollback"
-                values={["Checkpoint restore", "Patch export", "Explicit approval"]}
-              />
-            </div>
-            <div className="mt-5 flex items-center gap-2 rounded-lg border border-border bg-surface-muted p-3 text-xs text-text-secondary">
+            <div className="flex items-center gap-2 text-xs text-text-secondary">
               <LockKeyhole className="size-4 text-primary" />
-              AI is optional and requires explicit consent; deterministic transformation does not depend on AI.
+              AI is optional and requires explicit consent; deterministic transformations and assessment reports do not depend on AI.
             </div>
           </CardContent>
         </Card>

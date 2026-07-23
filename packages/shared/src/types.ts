@@ -67,7 +67,18 @@ export interface RepositoryAnalysis {
   difficulty: AnalysisRiskLevel;
 }
 
-export type MigrationTarget = "JS_TO_TS";
+export type MigrationTarget =
+  | "JS_TO_TS"
+  | "COMMONJS_TO_ESM"
+  | "EXPRESS_TO_HONO"
+  | "CALLBACKS_TO_ASYNC"
+  | "REACT_CLASSES_TO_HOOKS"
+  | "CSS_TO_TAILWIND"
+  | "ESLINT_FLAT_CONFIG"
+  | "JEST_TO_VITEST"
+  | "TYPED_ENV_CONFIG"
+  | "DEPRECATED_DEPENDENCY_REPORT"
+  | "EDGE_RUNTIME_REPORT";
 
 export type MigrationStepStatus =
   | "PENDING"

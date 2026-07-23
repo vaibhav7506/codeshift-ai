@@ -69,6 +69,24 @@ export default async function ReportPage({
             ))}
           </CardContent>
         </Card>
+        <Card className="shadow-none">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold">Behavioural validation evidence</h3>
+              <Badge tone="success">No regression detected</Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {demoReport.behaviouralValidation.map(([label, value]) => (
+              <div key={label} className="rounded-lg border border-success/20 bg-success/5 p-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-text-muted">
+                  {label}
+                </p>
+                <p className="mt-2 text-sm font-semibold text-success">{value}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </div>
     </AppShell>
   );

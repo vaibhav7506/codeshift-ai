@@ -74,6 +74,21 @@ export interface TransformResult {
   changedFiles: string[];
   warnings: string[];
   artifacts: string[];
+  fileChanges?: RecipeFileChange[];
+}
+
+export interface RecipeFileChange {
+  path: string;
+  originalCode: string;
+  updatedCode: string;
+  reason: string;
+  confidence: number;
+  risk: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  behaviourPotentiallyAffected: string[];
+  testsPerformed: string[];
+  validationEvidence: string[];
+  unsupportedAssumptions: string[];
+  rollbackAction: string;
 }
 
 export interface RecipeValidationResult {

@@ -22,7 +22,7 @@ const navigation = [
   { label: "Repositories", href: "/repositories", icon: Boxes },
   { label: "Recipes", href: "/recipes", icon: ScrollText },
   { label: "Campaigns", href: "/campaigns", icon: GitBranch },
-  { label: "Reports", href: "/reports/phase-1-baseline", icon: FileCheck2 },
+  { label: "Reports", href: "/reports/phase-2-validation", icon: FileCheck2 },
   { label: "Settings", href: "/settings", icon: Settings },
 ];
 
@@ -51,7 +51,7 @@ export function AppShell({
                 Personal workspace
               </p>
               <p className="mt-0.5 font-mono text-[9px] text-text-muted">
-                LOCAL · PHASE 1
+                LOCAL · PHASE 2
               </p>
             </div>
             <ChevronDown className="size-3.5 text-text-muted" />

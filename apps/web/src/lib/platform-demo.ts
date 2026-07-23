@@ -33,10 +33,63 @@ export const demoCampaign = {
     { name: "Validation", status: "BLOCKED" },
     { name: "Final approval", status: "BLOCKED" },
   ],
+  riskFactors: [
+    { label: "Framework change", score: 18, detail: "Express route boundary" },
+    { label: "Authentication", score: 14, detail: "Request augmentation" },
+    { label: "Affected files", score: 6, detail: "6 scoped files" },
+    { label: "Test coverage", score: 4, detail: "Integration fixtures available" },
+  ],
+  fileChange: {
+    path: "src/middleware/auth.ts",
+    recipe: "Express to Hono",
+    reason: "The middleware protects all /api/private/* routes.",
+    confidence: 0.9,
+    risk: "MEDIUM",
+    behaviour: "Authentication context and middleware ordering",
+    before: [
+      "app.use('/api/private', (req, res, next) => {",
+      "  req.user = verifyToken(req.get('authorization'));",
+      "  next();",
+      "});",
+    ].join("\n"),
+    after: [
+      "app.use('/api/private/*', async (c, next) => {",
+      "  c.set('user', verifyToken(c.req.header('authorization')));",
+      "  await next();",
+      "});",
+    ].join("\n"),
+    evidence: [
+      "Authentication integration tests passed",
+      "Middleware order 6/6 passed",
+      "Route parity 18/18 passed",
+    ],
+    assumptions: ["Session-backed authentication is not used in this scope."],
+  },
+  validationSummary: {
+    routeParity: "18/18 passed",
+    responseParity: "18/18 passed",
+    middlewareParity: "6/6 passed",
+    typecheck: "passed",
+    tests: "144/144 passed",
+  },
 };
 
+export const modernizationRecipes = [
+  ["JavaScript to TypeScript", "JavaScript", "TypeScript", "Deterministic"],
+  ["CommonJS to ESM", "CommonJS", "ESM", "Deterministic"],
+  ["Express to Hono", "Express", "Hono", "Review gated"],
+  ["Callbacks to async/await", "Callbacks", "async/await", "Deterministic subset"],
+  ["React classes to hooks", "React classes", "React hooks", "Behaviour gated"],
+  ["CSS to Tailwind CSS", "CSS", "Tailwind CSS", "Safe mode"],
+  ["ESLint flat configuration", "eslintrc", "Flat config", "Deterministic"],
+  ["Jest to Vitest", "Jest", "Vitest", "Review gated"],
+  ["Typed environment configuration", "process.env", "Typed config", "Additive"],
+  ["Deprecated dependency report", "Dependencies", "Assessment", "Report only"],
+  ["Edge runtime report", "Node.js", "Edge assessment", "Report only"],
+] as const;
+
 export const demoReport = {
-  id: "phase-1-baseline",
+  id: "phase-2-validation",
   title: "Repository intelligence baseline",
   repository: demoRepository.name,
   generatedAt: "2026-07-23",
@@ -53,4 +106,12 @@ export const demoReport = {
     "Authentication middleware requires behaviour parity evidence.",
   ],
   sequence: ["JavaScript to TypeScript"],
+  behaviouralValidation: [
+    ["Route parity", "18/18 passed"],
+    ["Response parity", "18/18 passed"],
+    ["Middleware parity", "6/6 passed"],
+    ["Type-check", "passed"],
+    ["Tests", "144/144 passed"],
+    ["Responsive screenshots", "12/12 matched"],
+  ],
 };

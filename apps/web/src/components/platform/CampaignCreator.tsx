@@ -7,17 +7,30 @@ import { Badge } from "@/components/ui/Badge";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import { demoCampaign } from "@/lib/platform-demo";
+import { demoCampaign, modernizationRecipes } from "@/lib/platform-demo";
 
 export function CampaignCreator() {
   const [createdName, setCreatedName] = useState<string | null>(null);
 
   return (
     <div className="space-y-4">
+      <div className="grid gap-2 sm:grid-cols-4">
+        {["Repository", "Recipe", "Scope & risk", "Validation"].map((step, index) => (
+          <div
+            key={step}
+            className="rounded-lg border border-border bg-surface px-3 py-2 text-xs text-text-secondary"
+          >
+            <span className="mr-2 font-mono text-[10px] text-primary">
+              {index + 1}
+            </span>
+            {step}
+          </div>
+        ))}
+      </div>
       <Card className="shadow-none">
         <CardContent>
           <form
-            className="grid gap-3 md:grid-cols-[minmax(0,1fr)_220px_auto]"
+            className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_240px_minmax(0,0.8fr)_auto]"
             onSubmit={(event) => {
               event.preventDefault();
               const form = new FormData(event.currentTarget);
@@ -37,11 +50,24 @@ export function CampaignCreator() {
             <label className="space-y-2 text-xs font-medium text-text-secondary">
               Recipe
               <select
+                name="recipe"
                 className="h-10 w-full rounded-[10px] border border-border bg-background px-3 text-sm text-text-primary"
-                defaultValue="js-to-ts"
               >
-                <option value="js-to-ts">JavaScript to TypeScript</option>
+                {modernizationRecipes.map(([recipe]) => (
+                  <option key={recipe} value={recipe.toLowerCase().replaceAll(" ", "-")}>
+                    {recipe}
+                  </option>
+                ))}
               </select>
+            </label>
+            <label className="space-y-2 text-xs font-medium text-text-secondary">
+              Approved scope
+              <Input
+                name="scope"
+                defaultValue="src/utils"
+                maxLength={300}
+                required
+              />
             </label>
             <Button className="self-end" type="submit">
               <Plus className="size-4" />
@@ -49,7 +75,7 @@ export function CampaignCreator() {
             </Button>
           </form>
           <p className="mt-3 text-xs text-text-muted">
-            Draft creation does not execute code or modify a repository.
+            Draft creation does not execute code or modify a repository. Protected files and validation evidence are reviewed before approval.
           </p>
         </CardContent>
       </Card>
