@@ -1,559 +1,225 @@
 # CodeShift AI
 
-**CodeShift AI** is a review-first JavaScript-to-TypeScript migration workspace.
+CodeShift AI is a governed, review-first code modernization platform. It analyzes repositories, recommends modular recipes, builds dependency-aware campaigns, captures behavioral evidence, applies approved changes locally or through registered runners, and permits pull requests only after validation and human approval.
 
-It analyzes legacy JavaScript repositories, creates scoped migration plans, applies conservative transformations, runs local validation, and opens GitHub pull requests only after human approval.
+The platform supports JavaScript/TypeScript modernization, staged enterprise .NET assessment, personal and organization workspaces, policy/RBAC/approval controls, audit evidence, optional BYOK AI, operational telemetry, usage limits, and an internal Recipe SDK.
 
-> Migrate code safely, one reviewable pull request at a time.
+> The repository contains a complete reference platform and production contracts. Durable database/object-storage adapters and an enforcing sandbox scheduler are still required before serving real production tenants.
 
----
+## Verified status
 
-## Overview
+- 72 automated tests across CLI, runner, analyzer, migrator, AI, governance, recipes, recovery, security, and production controls
+- TypeScript strict typecheck and ESLint across every workspace
+- Next.js production build with 34 application/API routes
+- 16 versioned modernization recipes
+- Versioned `/api/v1` surface and OpenAPI contract
+- Four validated deployment environment templates
+- Non-root, health-checked standalone container build
+- CI for tests, security scans, dependency audit, CodeQL, container build, SBOM, licence inventory, CLI packaging, and runner packaging
 
-Most AI code tools try to rewrite too much at once.
+## Architecture
 
-CodeShift AI takes a safer approach:
-
-1. Analyze the repository.
-2. Recommend a small migration scope.
-3. Generate a deterministic migration plan.
-4. Apply scoped JavaScript-to-TypeScript changes.
-5. Run local validation.
-6. Produce review artifacts.
-7. Open a GitHub pull request only after approval.
-
-The goal is not to replace code review.
-
-The goal is to make migrations smaller, safer, and easier to review.
-
----
-# Live Link Of Project
-
-https://codeshiftweb.vercel.app/
-
-## Demo
-
-Demo Repository:
-
-```txt
-https://github.com/vaibhav7506/codeshift-ai-demo-legacy-js
-```
-
-Demo Pull Request:
-
-```txt
-https://github.com/vaibhav7506/codeshift-ai-demo-legacy-js/pull/1
-```
-
-The demo PR shows CodeShift AI migrating `src/utils` from JavaScript to TypeScript, validating the result locally, pushing a migration branch, and creating a reviewable pull request.
-
----
-
-## Features
-
-- Public GitHub repository analysis
-- Migration readiness scoring
-- Framework detection
-- Package-manager detection
-- Module-system detection
-- JavaScript and TypeScript file counting
-- Recommended migration scopes
-- Deterministic JavaScript-to-TypeScript migration plans
-- Local CLI workflow
-- Scoped `.js` / `.jsx` to `.ts` / `.tsx` migration
-- Conservative CommonJS handling
-- `tsconfig.json` creation or update
-- Patch and migration summary artifacts
-- Local validation runner
-- GitHub branch, commit, push, and PR flow
-- Separate confirmation before every Git mutation
-- Optional BYOK AI explanations
-- OpenAI adapter implemented
-- Groq, Gemini, and Anthropic provider interfaces
-- Light, dark, and system themes
-- Professional dashboard for repository analysis and planning
-
----
-
-## Tech Stack
-
-### Web App
-
-- Next.js
-- React
-- TypeScript
-- Tailwind CSS
-
-### CLI
-
-- Node.js
-- TypeScript
-- Git integration
-- Local filesystem analysis
-- Local validation runner
-
-### Packages
-
-```txt
+```text
 apps/
-  web/         Next.js product and dashboard interface
-  cli/         Local analysis, migration, validation, and PR workflow
+  web/       Next.js control plane, APIs, governance and review UI
+  cli/       Local analysis, migration, validation, PR and Recipe SDK commands
+  runner/    Runner configuration, packaging and isolation manifest
 
 packages/
-  shared/      Shared types and product constants
-  analyzer/    Repository analysis and readiness scoring
-  migrator/    Migration planning, safe transforms, and diff generation
-  ai/          BYOK provider contracts and AI adapters
+  shared/    Shared migration and analysis contracts
+  analyzer/  Repository inventory, readiness and risk inputs
+  migrator/  Deterministic JS-to-TS planning and transformation
+  ai/        Optional provider-agnostic BYOK enhancements
+  platform/  Recipes, campaigns, checkpoints, jobs, governance,
+             observability, reliability, metering and deployment contracts
 ```
 
----
+Repository code stays outside the web control plane. It is changed through the local CLI or an isolated runner. The control plane coordinates tenant intent, policies, approvals, checkpoints, evidence, audit metadata, integrations, and usage.
+
+See [Architecture](docs/architecture.md), [Security](docs/security.md), and [Deployment](docs/deployment.md).
 
 ## Requirements
 
-- Node.js 20 or newer
-- npm 10 or newer
+- Node.js 20+; Node.js 22 is used by CI and the container
+- npm 10+
 - Git
-- GitHub repository remote for the pull request workflow
+- Optional .NET SDK on a capable runner for native .NET validation
 
----
-
-## Running the Web App Locally
-
-Install dependencies:
+## Local development
 
 ```bash
-npm install
-```
-
-Start the web app:
-
-```bash
-npm run dev --workspace=apps/web
-```
-
-Open:
-
-```txt
-http://localhost:3000
-```
-
-Useful pages:
-
-```txt
-http://localhost:3000
-http://localhost:3000/dashboard
-http://localhost:3000/settings
-```
-
-Public repository analysis works without credentials.
-
-To increase GitHub API rate limits, create:
-
-```txt
-apps/web/.env.local
-```
-
-Add a read-only GitHub token there.
-
-Do not expose tokens through `NEXT_PUBLIC_` variables.
-
----
-
-## Workspace Commands
-
-```bash
-npm run dev
-npm run build
+npm ci
 npm run typecheck
-npm test --workspace=packages/ai
-npm test --workspace=packages/analyzer
-npm test --workspace=packages/migrator
-npm test --workspace=apps/cli
+npm run lint
+npm test
+npm run deployment:validate
+npm run dev
 ```
 
----
+Open `http://localhost:3000`. Copy `apps/web/.env.example` to an ignored local environment file when credentials or non-default settings are needed.
 
-## Installing the CLI Locally
-
-Build and link the CLI:
+Useful commands:
 
 ```bash
-npm install
 npm run build
-npm link --workspace=@codeshift/cli
+npm run format:check
+npm run package:cli
+npm run package:runner
+npm audit --audit-level=moderate
 ```
 
-Verify:
+## Product workflow
+
+1. Connect or select a repository.
+2. Run structured repository analysis.
+3. Review technologies, dependencies, risks, and recommended scope.
+4. Select versioned modernization recipes.
+5. Create a dependency-aware campaign.
+6. Configure approved scope and protected files.
+7. Capture a behavioral baseline and checkpoint.
+8. Obtain required execution approvals.
+9. Execute locally or through a registered isolated runner.
+10. Review rich diffs, reasons, assumptions, tests, and validation evidence.
+11. Approve, reject, retry, resume, cancel, or roll back.
+12. Obtain final approval and create a pull request.
+13. Track campaign, runner, audit, cost, duration, and PR status.
+
+Risk is explainable and includes change size, dependency fan-in, complexity, coverage, authentication, payments, database involvement, runtime/framework changes, unsupported dependencies, dynamic behavior, reflection, native/Windows APIs, missing tests, deterministic confidence, and historical failures. AI confidence never lowers risk.
+
+## CLI
+
+Build and link:
 
 ```bash
+npm run build --workspace=@codeshift/cli
+npm link --workspace=@codeshift/cli
 codeshift-ai --help
 ```
 
-Without linking, run the compiled CLI directly:
-
-```bash
-node /path/to/codeshift-ai/apps/cli/dist/index.js analyze
-```
-
----
-
-## Complete Migration Workflow
-
-Use a disposable copy of a legacy JavaScript repository.
-
-The target repository should already be initialized with Git and should have a GitHub remote.
-
-```bash
-cd /path/to/legacy-javascript-repository
-
-git status
-git remote -v
-```
-
-Run CodeShift AI:
+Migration workflow:
 
 ```bash
 codeshift-ai analyze
 codeshift-ai plan --target js-to-ts --path src/utils
 codeshift-ai migrate --target js-to-ts --path src/utils
 codeshift-ai validate
-```
-
-Review generated files and artifacts:
-
-```bash
-git diff
-cat .codeshift-ai/migration-summary.json
-cat .codeshift-ai/patch.diff
-cat .codeshift-ai/validation-result.json
-cat .codeshift-ai/validation-logs.txt
-```
-
----
-
-## Creating a Pull Request
-
-Set a GitHub token only in the current shell.
-
-For HTTPS remotes, the token needs repository contents write access.
-
-For PR creation, it also needs pull request write access.
-
-### macOS / Linux
-
-```bash
-export GITHUB_TOKEN="your-token"
 codeshift-ai pr
 ```
 
-### Windows PowerShell
+The migrate command does not commit or push. Git mutations occur only through `pr` after separate confirmation.
 
-```powershell
-$env:GITHUB_TOKEN="your-token"
-codeshift-ai pr
-```
-
-The PR command shows:
-
-- migration target
-- selected scope
-- changed files
-- warnings
-- validation results
-- base branch
-- proposed migration branch
-
-Then it asks separately before:
-
-1. creating a branch
-2. committing migration files
-3. pushing the branch
-4. opening the pull request
-
-CodeShift AI does not commit, push, or create a PR during `migrate`.
-
-Those operations happen only in:
+Recipe SDK:
 
 ```bash
-codeshift-ai pr
+codeshift-ai recipe create my-recipe
+codeshift-ai recipe validate my-recipe
+codeshift-ai recipe test my-recipe
+codeshift-ai recipe inspect my-recipe
 ```
 
-and only after explicit approval.
+Recipe inspection validates bounded manifests and fixtures without importing untrusted source. See [CLI](docs/cli.md) and [Recipe authoring](docs/recipe-authoring.md).
 
----
+## Modernization recipes
 
-## CLI Command Behavior
+The catalog includes:
 
-### `codeshift-ai analyze`
+- JavaScript to TypeScript
+- CommonJS to ESM
+- Express to Hono
+- Callbacks to async/await
+- React classes to hooks
+- CSS to Tailwind CSS
+- ESLint flat configuration
+- Jest to Vitest
+- Typed environment configuration
+- Deprecated dependency assessment
+- Edge-runtime assessment
+- .NET Framework to modern .NET
+- ASP.NET to ASP.NET Core
+- Entity Framework 6 to EF Core assessment
+- WCF modernization assessment
+- Windows Service to Worker Service
 
-Analyzes the current repository and writes:
+Transformations are deterministic or explicitly marked assessment/scaffold-only. Unsupported cases remain unchanged with review evidence.
 
-```txt
-.codeshift-ai/analysis.json
-```
+## Governance and security
 
-It detects:
+- Organization/workspace tenant keys and personal-workspace compatibility
+- Nine predefined roles with server-side permission checks
+- One approval before execution; two for high risk
+- No self-approval and specialist gates for security/platform/database changes
+- Policy allowlists, protected paths, risk/file limits, required tests/reviewers, vulnerability/licence hooks, AI/source-sharing controls
+- One-time runner pairing, short-lived heartbeat credentials and revocation
+- GitHub webhook HMAC verification and approval-gated PR boundary
+- Append-only hash-chained audit events without source or secrets
+- AES-256-GCM BYOK storage, rotation, disablement, consent and zero-retention defaults
+- Rate limits, CSRF/origin checks, input limits, SSRF defenses, security headers and signed organization identity
 
-- framework
-- package manager
-- module system
-- JavaScript and TypeScript file counts
-- scripts
-- readiness score
-- recommended migration scopes
+## API
 
----
+New clients use `/api/v1`. OpenAPI is available at `/api/v1/openapi`.
 
-### `codeshift-ai plan`
+The API includes:
 
-Creates a deterministic migration plan and writes:
+- Liveness and readiness
+- Repository analysis and migration plans
+- Paginated/filterable/sortable recipes and campaigns
+- Approvals, runner revocation and GitHub integration boundaries
+- Encrypted AI credentials
+- Usage and protected metrics
+- Stable errors, request/correlation IDs, rate limits, authorization and idempotency requirements
 
-```txt
-.codeshift-ai/migration-plan.json
-```
+Legacy unversioned routes remain for current UI/CLI compatibility. See [API documentation](docs/api.md).
 
-Example:
+## Observability and reliability
+
+Production contracts provide redacted JSON telemetry, correlation/trace spans, counters/gauges, health aggregation, error-tracker adapters, alert thresholds, resource metrics, bounded retry/backoff, timeouts, circuit breakers, concurrency/backpressure, dead letters, cancellation, resume, transactions, optimistic campaign versions, connection-pool interfaces, graceful shutdown, and partial-failure rollback.
+
+Telemetry never records repository source, diffs, file content, passwords, tokens, or provider keys.
+
+## Deployment
+
+Validate configuration:
 
 ```bash
-codeshift-ai plan --target js-to-ts --path src/utils
+npm run deployment:validate
 ```
 
-This command does not modify source files.
-
----
-
-### `codeshift-ai migrate`
-
-Applies a scoped JavaScript-to-TypeScript migration.
-
-Example:
+Build the container:
 
 ```bash
-codeshift-ai migrate --target js-to-ts --path src/utils
+docker build -t codeshift-ai:local .
 ```
 
-It may:
-
-- rename `.js` files to `.ts`
-- rename `.jsx` files to `.tsx`
-- create or update `tsconfig.json`
-- apply conservative syntax transformations
-- leave complex CommonJS cases unchanged with warnings
-
-It writes:
-
-```txt
-.codeshift-ai/patch.diff
-.codeshift-ai/migration-summary.json
-```
-
-It does not commit changes.
-
----
-
-### `codeshift-ai validate`
-
-Runs only existing local scripts:
-
-- `test`
-- `build`
-- `typecheck`
-- `lint`
-
-Missing scripts are recorded as `SKIPPED`.
-
-It writes:
-
-```txt
-.codeshift-ai/validation-result.json
-.codeshift-ai/validation-logs.txt
-```
-
----
-
-### `codeshift-ai pr`
-
-Creates a reviewable GitHub pull request after explicit approval.
-
-It requires:
-
-- migration summary
-- Git repository
-- GitHub remote
-- migration changes or a local migration branch flow
-
-It stages only files associated with the recorded migration.
-
----
-
-## Optional BYOK AI
-
-The deterministic migration workflow does not require AI.
-
-For optional AI-generated explanations and PR summaries, provide your own OpenAI key.
-
-BYOK means:
-
-> Bring Your Own Key.
-
-CodeShift AI does not pay for or store user AI usage.
-
-### macOS / Linux
-
-```bash
-export OPENAI_API_KEY="your-key"
-codeshift-ai migrate --target js-to-ts --path src/utils --ai --provider openai
-```
-
-### Windows PowerShell
-
-```powershell
-$env:OPENAI_API_KEY="your-key"
-codeshift-ai migrate --target js-to-ts --path src/utils --ai --provider openai
-```
-
-AI output is written to:
-
-```txt
-.codeshift-ai/ai-enhancement.json
-```
-
-The API key is read from the process environment and is never written to artifacts or logs.
-
-OpenAI is implemented.
-
-Groq, Gemini, and Anthropic currently have clean provider stubs.
-
-AI output is advisory and cannot expand the selected migration scope.
-
----
-
-## Safety Model
-
-CodeShift AI separates planning from execution.
-
-The web app can analyze public repository metadata and generate migration plans, but it does not:
-
-- clone repositories
-- install dependencies
-- run repository code
-- execute package scripts
-- mutate files on a remote server
-
-Actual file changes and validation happen locally through the CLI.
-
-This avoids unsafe server-side execution of unknown repositories.
-
-CodeShift AI also avoids fully autonomous PR creation. Every Git mutation requires explicit confirmation.
-
----
-
-## Theme System
-
-CodeShift AI supports:
-
-- light mode
-- dark mode
-- system mode
-
-The first visit follows the operating-system preference.
-
-Users can change the theme from the navbar, dashboard, or settings page.
-
-The preference is stored in `localStorage`.
-
----
-
-## Demo Repository
-
-A small demo repository is available here:
-
-```txt
-https://github.com/vaibhav7506/codeshift-ai-demo-legacy-js
-```
-
-Demo PR:
-
-```txt
-https://github.com/vaibhav7506/codeshift-ai-demo-legacy-js/pull/1
-```
-
-This demo shows the intended workflow:
-
-```bash
-codeshift-ai analyze
-codeshift-ai plan --target js-to-ts --path src/utils
-codeshift-ai migrate --target js-to-ts --path src/utils
-codeshift-ai validate
-codeshift-ai pr
-```
-
----
-
-## Current Status
-
-CodeShift AI MVP is complete.
-
-Completed areas:
-
-- landing, theme, and architecture scaffold
-- public repository analyzer
-- migration readiness scoring
-- deterministic migration planner
-- local CLI analyze and plan commands
-- JavaScript-to-TypeScript migrator
-- diff generation
-- local validation runner
-- BYOK AI provider layer
-- GitHub PR workflow
-
----
-
-## Known MVP Limitations
-
-- Only GitHub.com remotes are supported.
-- GitHub Enterprise Server is not supported yet.
-- `origin` is preferred; otherwise the first configured remote is used.
-- The current checked-out branch is used as the PR base.
-- Fork-based PRs are not implemented yet.
-- Draft PRs are not implemented yet.
-- Updating an existing PR is not implemented yet.
-- Web-created PRs are not implemented yet.
-- Groq, Gemini, and Anthropic adapters are interface-complete stubs.
-- Complex CommonJS syntax is preserved instead of aggressively rewritten.
-
----
-
-## Roadmap
-
-Planned improvements:
-
-- GitHub Actions-based web execution
-- web-based migration run history
-- richer diff viewer
-- PR status tracking inside the dashboard
-- GitHub Enterprise support
-- fork-based PR support
-- draft PR support
-- full Groq, Gemini, and Anthropic adapters
-- React class component to hooks migration
-- Express to Hono migration
-- CSS to Tailwind migration
-- migration recipes marketplace
-
----
-
-## Project Philosophy
-
-CodeShift AI is not trying to replace code review.
-
-It is designed to make migrations smaller, safer, and easier to inspect.
-
-The ideal output is not a massive automatic rewrite.
-
-The ideal output is a clean pull request that a developer can confidently review, test, and merge.
-
----
+Development/test may use ephemeral adapters. Staging/production readiness fails unless HTTPS, TLS PostgreSQL, external encryption/identity/webhook secrets, and retention/lifecycle policies are configured.
+
+The CI workflow never deploys code from a pull request. Release jobs on trusted `main` pushes create artifacts only; environment deployment remains a separately authorized operation.
+
+## Documentation
+
+- [Architecture and data model](docs/architecture.md)
+- [Security, permissions, approvals and incident response](docs/security.md)
+- [API](docs/api.md)
+- [CLI](docs/cli.md)
+- [Local development and troubleshooting](docs/development.md)
+- [Deployment, backup, restore, rollback and upgrades](docs/deployment.md)
+- [Environment variables](docs/environment.md)
+- [Runner setup](docs/runner-setup.md)
+- [Recipe authoring](docs/recipe-authoring.md)
+- [.NET modernization](docs/guides/dotnet-modernization.md)
+- [Express to Hono](docs/guides/express-to-hono.md)
+- [Behavioral validation](docs/guides/behavioural-validation.md)
+
+## Known limitations
+
+- Control-plane repositories are in-memory reference adapters; production needs durable PostgreSQL and object-storage implementations.
+- The runner package validates and emits isolation requirements; production needs an OS/container sandbox scheduler that enforces them.
+- GitHub provider operations are contract-first; live installation provisioning and token exchange require deployment integration.
+- Groq, Gemini, and Anthropic remain provider stubs.
+- There is no public recipe marketplace, billing processor, or automatic invoice collection.
+- GitHub Enterprise, forks, and automatic existing-PR updates are not implemented.
+
+These limitations are deliberately exposed rather than presented as production-ready features.
 
 ## License
 

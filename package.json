@@ -13,7 +13,14 @@
     "lint": "eslint . --max-warnings=0",
     "test": "npm test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "clean": "npm run clean --workspaces --if-present"
+    "clean": "npm run clean --workspaces --if-present",
+    "format:check": "git diff --check",
+    "deployment:validate": "node scripts/validate-deployment.mjs",
+    "load:test": "node scripts/load-test.mjs",
+    "package:cli": "npm pack --workspace=@codeshift/cli --dry-run",
+    "package:runner": "npm pack --workspace=@codeshift/runner --dry-run",
+    "license:report": "node scripts/license-report.mjs",
+    "security:secrets": "node scripts/secret-scan.mjs"
   },
   "engines": {
     "node": ">=20.0.0",

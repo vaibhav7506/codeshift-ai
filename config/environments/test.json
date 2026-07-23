@@ -1,0 +1,8 @@
+{
+  "environment": "test",
+  "publicBaseUrl": "http://localhost:3000",
+  "persistence": "ephemeral",
+  "logRetentionDays": 1,
+  "auditRetentionDays": 7,
+  "objectStorageLifecycleDays": 1
+}

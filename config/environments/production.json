@@ -1,0 +1,12 @@
+{
+  "environment": "production",
+  "publicBaseUrl": "https://codeshift.example",
+  "persistence": "postgres",
+  "databaseUrl": "${DATABASE_URL}",
+  "encryptionKey": "${CODESHIFT_ENCRYPTION_KEY}",
+  "identitySecret": "${CODESHIFT_IDENTITY_SECRET}",
+  "githubWebhookSecret": "${GITHUB_WEBHOOK_SECRET}",
+  "logRetentionDays": 30,
+  "auditRetentionDays": 2555,
+  "objectStorageLifecycleDays": 90
+}
