@@ -34,7 +34,8 @@
   "dependencies": {
     "@codeshift/analyzer": "*",
     "@codeshift/migrator": "*",
-    "@codeshift/shared": "*"
+    "@codeshift/shared": "*",
+    "fast-xml-parser": "^5.10.1"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

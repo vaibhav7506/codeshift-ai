@@ -6,7 +6,7 @@ import { PageHeading } from "@/components/platform/PageHeading";
 import { Badge } from "@/components/ui/Badge";
 import { buttonVariants } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
-import { demoCampaign } from "@/lib/platform-demo";
+import { demoCampaign, dotNetDemoCampaign } from "@/lib/platform-demo";
 
 export default function CampaignsPage() {
   return (
@@ -21,22 +21,23 @@ export default function CampaignsPage() {
           description="Create a draft, review its scope and evidence, then approve execution through an isolated runner."
         />
         <CampaignCreator />
-        <Card className="shadow-none">
+        {[demoCampaign, dotNetDemoCampaign].map((campaign) => (
+        <Card key={campaign.id} className="shadow-none">
           <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <Badge tone="info">{demoCampaign.status}</Badge>
-                <Badge tone="warning">{demoCampaign.risk} risk</Badge>
+                <Badge tone="info">{campaign.status}</Badge>
+                <Badge tone="warning">{campaign.risk} risk</Badge>
               </div>
               <h3 className="mt-3 font-semibold text-text-primary">
-                {demoCampaign.name}
+                {campaign.name}
               </h3>
               <p className="mt-1 text-xs text-text-secondary">
-                {demoCampaign.repository} · {demoCampaign.affectedFiles} estimated files
+                {campaign.repository} · {campaign.affectedFiles} estimated files
               </p>
             </div>
             <Link
-              href={`/campaigns/${demoCampaign.id}`}
+              href={`/campaigns/${campaign.id}`}
               className={buttonVariants({ variant: "secondary", size: "sm" })}
             >
               Review plan
@@ -44,6 +45,7 @@ export default function CampaignsPage() {
             </Link>
           </CardContent>
         </Card>
+        ))}
       </div>
     </AppShell>
   );

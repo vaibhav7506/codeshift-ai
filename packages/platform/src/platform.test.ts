@@ -44,8 +44,8 @@ const analysis: RepositoryAnalysis = {
 
 test("default recipe registry exposes all completed modernization recipes", () => {
   const registry = createDefaultRecipeRegistry();
-  assert.equal(registry.list().length, 11);
-  assert.equal(registry.list({ includeDisabled: true }).length, 11);
+  assert.equal(registry.list().length, 16);
+  assert.equal(registry.list({ includeDisabled: true }).length, 16);
   assert.equal(registry.get("js-to-ts").version, "1.0.0");
   assert.equal(registry.get("express-to-hono").version, "1.0.0");
 });

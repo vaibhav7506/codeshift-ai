@@ -1,0 +1,18 @@
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{D108AEB8-1BD9-4D16-9385-D86F72AAB3A3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>LegacyEnterprise.Web</RootNamespace>
+    <AssemblyName>LegacyEnterprise.Web</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="EntityFramework" />
+    <ProjectReference Include="..\LegacyDomain\LegacyDomain.csproj" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

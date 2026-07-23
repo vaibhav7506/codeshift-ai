@@ -1,8 +1,9 @@
 import { AppShell } from "@/components/dashboard/AppShell";
+import { DotNetCompatibilityPanel } from "@/components/platform/DotNetCompatibilityPanel";
 import { PageHeading } from "@/components/platform/PageHeading";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { demoReport } from "@/lib/platform-demo";
+import { demoReport, dotNetDemoReport } from "@/lib/platform-demo";
 
 export default async function ReportPage({
   params,
@@ -10,17 +11,19 @@ export default async function ReportPage({
   params: Promise<{ reportId: string }>;
 }) {
   const { reportId } = await params;
+  const isDotNet = reportId === dotNetDemoReport.id;
+  const report = isDotNet ? dotNetDemoReport : demoReport;
 
   return (
     <AppShell
-      title={demoReport.title}
+      title={report.title}
       description="Structured repository intelligence and explainable migration risk."
     >
       <div className="space-y-5">
         <PageHeading
           eyebrow={`Report · ${reportId}`}
-          title={demoReport.title}
-          description={`${demoReport.repository} · Generated ${demoReport.generatedAt}`}
+          title={report.title}
+          description={`${report.repository} · Generated ${report.generatedAt}`}
           action={<Badge tone="success">Analysis complete</Badge>}
         />
         <div className="grid gap-5 xl:grid-cols-2">
@@ -29,7 +32,7 @@ export default async function ReportPage({
               <h3 className="text-sm font-semibold">Language breakdown</h3>
             </CardHeader>
             <CardContent className="space-y-4">
-              {demoReport.languageBreakdown.map((item) => (
+              {report.languageBreakdown.map((item) => (
                 <div key={item.language}>
                   <div className="flex justify-between text-xs">
                     <span className="text-text-secondary">{item.language}</span>
@@ -47,10 +50,10 @@ export default async function ReportPage({
               <h3 className="text-sm font-semibold">Inventory</h3>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-2">
-              <Inventory label="Dependencies" values={demoReport.dependencies} />
-              <Inventory label="Routes" values={demoReport.routes} />
-              <Inventory label="Environment variables" values={demoReport.environmentVariables} />
-              <Inventory label="Recipe order" values={demoReport.sequence} />
+              <Inventory label="Dependencies" values={report.dependencies} />
+              <Inventory label="Routes" values={report.routes} />
+              <Inventory label="Environment variables" values={report.environmentVariables} />
+              <Inventory label="Recipe order" values={report.sequence} />
             </CardContent>
           </Card>
         </div>
@@ -58,11 +61,11 @@ export default async function ReportPage({
           <CardHeader>
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold">Migration blockers</h3>
-              <Badge tone="warning">{demoReport.blockers.length} review items</Badge>
+              <Badge tone="warning">{report.blockers.length} review items</Badge>
             </div>
           </CardHeader>
           <CardContent className="grid gap-3 md:grid-cols-2">
-            {demoReport.blockers.map((blocker) => (
+            {report.blockers.map((blocker) => (
               <div key={blocker} className="rounded-lg border border-warning/20 bg-warning/5 p-4 text-sm text-text-secondary">
                 {blocker}
               </div>
@@ -77,7 +80,7 @@ export default async function ReportPage({
             </div>
           </CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {demoReport.behaviouralValidation.map(([label, value]) => (
+            {report.behaviouralValidation.map(([label, value]) => (
               <div key={label} className="rounded-lg border border-success/20 bg-success/5 p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-text-muted">
                   {label}
@@ -87,6 +90,9 @@ export default async function ReportPage({
             ))}
           </CardContent>
         </Card>
+        {isDotNet ? (
+          <DotNetCompatibilityPanel compatibility={dotNetDemoReport.compatibility} />
+        ) : null}
       </div>
     </AppShell>
   );

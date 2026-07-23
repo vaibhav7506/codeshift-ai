@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "CodeShift Roslyn/MSBuild Analyzer 1.0",
+  "projects": [
+    {
+      "path": "src/LegacyWeb/LegacyWeb.csproj",
+      "controllers": [
+        {
+          "name": "UsersController",
+          "baseType": "ApiController",
+          "routes": [
+            {
+              "method": "GET",
+              "template": "/api/users/{id}",
+              "controller": "UsersController",
+              "action": "Get",
+              "authorization": ["Authorize"]
+            }
+          ],
+          "filters": ["Authorize"],
+          "systemWebUsages": ["HttpContext.Current"]
+        }
+      ],
+      "efContexts": [
+        {
+          "name": "LegacyDbContext",
+          "provider": "System.Data.SqlClient",
+          "features": ["lazy-loading", "stored-procedures", "transactions"],
+          "entities": ["User", "AuditRecord"]
+        }
+      ],
+      "wcfServices": [
+        {
+          "contract": "IAccountService",
+          "operations": ["GetAccount", "UpdateAccount"],
+          "bindings": ["basicHttpBinding"],
+          "hasDuplex": false,
+          "hasStreaming": false,
+          "usesTransactions": true
+        }
+      ],
+      "windowsServices": [
+        {
+          "name": "LegacySyncService",
+          "lifecycleMethods": ["OnStart", "OnStop"]
+        }
+      ]
+    }
+  ]
+}

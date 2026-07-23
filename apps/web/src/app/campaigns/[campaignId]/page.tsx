@@ -2,11 +2,16 @@ import Link from "next/link";
 import { Check, Circle, LockKeyhole, RotateCcw } from "lucide-react";
 import { AppShell } from "@/components/dashboard/AppShell";
 import { PageHeading } from "@/components/platform/PageHeading";
+import { DotNetCompatibilityPanel } from "@/components/platform/DotNetCompatibilityPanel";
 import { RichDiffReview } from "@/components/platform/RichDiffReview";
 import { Badge } from "@/components/ui/Badge";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { demoCampaign } from "@/lib/platform-demo";
+import {
+  demoCampaign,
+  dotNetDemoCampaign,
+  dotNetDemoReport,
+} from "@/lib/platform-demo";
 
 export default async function CampaignDetailPage({
   params,
@@ -14,16 +19,18 @@ export default async function CampaignDetailPage({
   params: Promise<{ campaignId: string }>;
 }) {
   const { campaignId } = await params;
+  const isDotNet = campaignId === dotNetDemoCampaign.id;
+  const campaign = isDotNet ? dotNetDemoCampaign : demoCampaign;
 
   return (
     <AppShell
-      title={demoCampaign.name}
+      title={campaign.name}
       description="Scope, dependencies, approval state, validation, and rollback."
     >
       <div className="space-y-5">
         <PageHeading
           eyebrow={`Campaign · ${campaignId}`}
-          title={demoCampaign.name}
+          title={campaign.name}
           description="No transformation can start until the approved scope, checkpoint policy, and validation contract are accepted."
           action={
             <div className="flex gap-2">
@@ -40,10 +47,10 @@ export default async function CampaignDetailPage({
         />
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {[
-            ["Status", demoCampaign.status],
-            ["Risk", `${demoCampaign.riskScore}/100 · ${demoCampaign.risk}`],
-            ["Affected files", String(demoCampaign.affectedFiles)],
-            ["Recipe", `${demoCampaign.recipe} · ${demoCampaign.version}`],
+            ["Status", campaign.status],
+            ["Risk", `${campaign.riskScore}/100 · ${campaign.risk}`],
+            ["Affected files", String(campaign.affectedFiles)],
+            ["Recipe", `${campaign.recipe} · ${campaign.version}`],
           ].map(([label, value]) => (
             <Card key={label} className="p-4 shadow-none">
               <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-text-muted">
@@ -58,11 +65,11 @@ export default async function CampaignDetailPage({
             <CardHeader>
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold">Explainable risk map</h3>
-                <Badge tone="warning">{demoCampaign.riskScore}/100</Badge>
+                <Badge tone="warning">{campaign.riskScore}/100</Badge>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {demoCampaign.riskFactors.map((factor) => (
+              {campaign.riskFactors.map((factor) => (
                 <div key={factor.label}>
                   <div className="flex items-center justify-between gap-3 text-xs">
                     <span className="font-medium text-text-primary">{factor.label}</span>
@@ -88,7 +95,7 @@ export default async function CampaignDetailPage({
               <h3 className="text-sm font-semibold">Validation contract</h3>
             </CardHeader>
             <CardContent className="grid gap-3 sm:grid-cols-2">
-              {Object.entries(demoCampaign.validationSummary).map(([label, value]) => (
+              {Object.entries(campaign.validationSummary).map(([label, value]) => (
                 <div key={label} className="rounded-lg border border-success/20 bg-success/5 p-3">
                   <p className="font-mono text-[9px] uppercase tracking-[0.12em] text-text-muted">
                     {label.replace(/([A-Z])/g, " $1")}
@@ -99,14 +106,17 @@ export default async function CampaignDetailPage({
             </CardContent>
           </Card>
         </div>
-        <RichDiffReview change={demoCampaign.fileChange} />
+        {isDotNet ? (
+          <DotNetCompatibilityPanel compatibility={dotNetDemoReport.compatibility} />
+        ) : null}
+        <RichDiffReview change={campaign.fileChange} />
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
           <Card className="shadow-none">
             <CardHeader>
               <h3 className="text-sm font-semibold">Execution stages</h3>
             </CardHeader>
             <CardContent className="space-y-1">
-              {demoCampaign.stages.map((stage, index) => {
+              {campaign.stages.map((stage, index) => {
                 const completed = stage.status === "COMPLETED";
                 return (
                   <div key={stage.name} className="flex items-center gap-3 border-b border-border py-3 last:border-0">
@@ -132,9 +142,9 @@ export default async function CampaignDetailPage({
                 <h3 className="text-sm font-semibold">Approved boundaries</h3>
               </CardHeader>
               <CardContent className="space-y-4 text-xs">
-                <Boundary label="Scope" values={demoCampaign.scope} />
-                <Boundary label="Protected" values={demoCampaign.protectedFiles} />
-                <Boundary label="Validation" values={demoCampaign.validations} />
+                <Boundary label="Scope" values={campaign.scope} />
+                <Boundary label="Protected" values={campaign.protectedFiles} />
+                <Boundary label="Validation" values={campaign.validations} />
               </CardContent>
             </Card>
             <Card className="shadow-none">
@@ -147,7 +157,7 @@ export default async function CampaignDetailPage({
                   A commit, file hashes, lockfile hashes, configuration, and validation baseline will be captured before execution.
                 </p>
                 <Link
-                  href="/reports/phase-2-validation"
+                  href={isDotNet ? "/reports/phase-3-dotnet-validation" : "/reports/phase-2-validation"}
                   className={buttonVariants({ variant: "ghost", size: "sm", className: "mt-3 px-0" })}
                 >
                   View analysis report

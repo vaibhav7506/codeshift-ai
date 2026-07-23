@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/Badge";
 import { buttonVariants } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import { demoRepository } from "@/lib/platform-demo";
+import { demoRepository, dotNetDemoRepository } from "@/lib/platform-demo";
 
 export default function RepositoriesPage() {
   return (
@@ -47,7 +47,8 @@ export default function RepositoriesPage() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
+                {[demoRepository, dotNetDemoRepository].map((repository) => (
+                <tr key={repository.id}>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
                       <div className="flex size-9 items-center justify-center rounded-lg border border-border bg-surface-muted text-text-secondary">
@@ -55,29 +56,29 @@ export default function RepositoriesPage() {
                       </div>
                       <div>
                         <p className="font-semibold text-text-primary">
-                          {demoRepository.name}
+                          {repository.name}
                         </p>
                         <p className="mt-1 font-mono text-[10px] text-text-muted">
-                          {demoRepository.owner} / {demoRepository.defaultBranch}
+                          {repository.owner} / {repository.defaultBranch}
                         </p>
                       </div>
                     </div>
                   </td>
                   <td className="px-5 py-4 text-text-secondary">
-                    {demoRepository.framework} · {demoRepository.language}
+                    {repository.framework} · {repository.language}
                   </td>
                   <td className="px-5 py-4 font-mono text-xs text-text-secondary">
-                    {demoRepository.readiness}/100
+                    {repository.readiness}/100
                   </td>
                   <td className="px-5 py-4">
-                    <Badge tone="warning">{demoRepository.risk}</Badge>
+                    <Badge tone="warning">{repository.risk}</Badge>
                   </td>
                   <td className="px-5 py-4 text-xs text-text-muted">
-                    {demoRepository.lastAnalysis}
+                    {repository.lastAnalysis}
                   </td>
                   <td className="px-5 py-4 text-right">
                     <Link
-                      href={`/repositories/${demoRepository.id}`}
+                      href={`/repositories/${repository.id}`}
                       className={buttonVariants({ variant: "ghost", size: "sm" })}
                     >
                       Review
@@ -85,6 +86,7 @@ export default function RepositoriesPage() {
                     </Link>
                   </td>
                 </tr>
+                ))}
               </tbody>
             </table>
           </div>

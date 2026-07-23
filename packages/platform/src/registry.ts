@@ -14,6 +14,13 @@ import {
   jestToVitestRecipe,
   typedEnvironmentRecipe,
 } from "./additional-recipes.js";
+import {
+  aspNetCoreRecipe,
+  dotNetFrameworkRecipe,
+  ef6ToEfCoreRecipe,
+  wcfModernizationRecipe,
+  windowsServiceToWorkerRecipe,
+} from "./dotnet-recipes.js";
 import { RecipeRegistry, StaticFeatureFlags } from "./recipe.js";
 
 export function createDefaultRecipeRegistry(
@@ -35,6 +42,11 @@ export function createDefaultRecipeRegistry(
     typedEnvironmentRecipe,
     deprecatedDependencyRecipe,
     edgeRuntimeReportRecipe,
+    dotNetFrameworkRecipe,
+    aspNetCoreRecipe,
+    ef6ToEfCoreRecipe,
+    wcfModernizationRecipe,
+    windowsServiceToWorkerRecipe,
   ]) {
     registry.register({
       metadata: recipe,

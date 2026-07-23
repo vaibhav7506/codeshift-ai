@@ -11,6 +11,19 @@ export const demoRepository = {
   lastAnalysis: "Baseline fixture",
 };
 
+export const dotNetDemoRepository = {
+  id: "legacy-enterprise-dotnet",
+  name: "legacy-enterprise-dotnet",
+  owner: "personal",
+  defaultBranch: "main",
+  framework: "ASP.NET MVC / WCF",
+  language: "C#",
+  readiness: 38,
+  risk: "HIGH",
+  files: 126,
+  lastAnalysis: "Roslyn/MSBuild manifest",
+};
+
 export const demoCampaign = {
   id: "campaign-js-to-ts-utils",
   name: "Utilities TypeScript migration",
@@ -74,6 +87,77 @@ export const demoCampaign = {
   },
 };
 
+export const dotNetDemoCampaign = {
+  id: "campaign-dotnet-modernization",
+  name: "Legacy enterprise .NET modernization",
+  repository: dotNetDemoRepository.name,
+  recipe: ".NET Framework to modern .NET",
+  version: "1.0.0",
+  status: "READY FOR REVIEW",
+  risk: "HIGH",
+  riskScore: 78,
+  affectedFiles: 23,
+  scope: ["src/LegacyWeb/**"],
+  protectedFiles: ["**/Migrations/**", "production.config", "*.pfx"],
+  validations: [
+    "dotnet restore",
+    "dotnet build --no-restore",
+    "dotnet test --no-build",
+    "database integration tests",
+  ],
+  checkpoint: "Pending execution approval",
+  stages: [
+    { name: "Roslyn/MSBuild analysis", status: "COMPLETED" },
+    { name: "Compatibility planning", status: "COMPLETED" },
+    { name: "Execution approval", status: "PENDING" },
+    { name: "SDK project conversion", status: "BLOCKED" },
+    { name: "Native .NET validation", status: "BLOCKED" },
+    { name: "Final approval", status: "BLOCKED" },
+  ],
+  riskFactors: [
+    { label: "Framework change", score: 24, detail: "net472 to configured LTS" },
+    { label: "System.Web", score: 18, detail: "Controller and HttpContext usage" },
+    { label: "Database", score: 16, detail: "EF6 assessment-only" },
+    { label: "Windows coupling", score: 12, detail: "WCF and Windows Service" },
+    { label: "Native validation", score: 8, detail: "SDK required on runner" },
+  ],
+  fileChange: {
+    path: "src/LegacyWeb/LegacyWeb.csproj",
+    recipe: ".NET Framework to modern .NET",
+    reason: "The controlled project has no COM references or custom MSBuild targets.",
+    confidence: 0.88,
+    risk: "HIGH",
+    behaviour: "Assembly binding, package resolution, and runtime target",
+    before: [
+      '<Project ToolsVersion="15.0">',
+      "  <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>",
+      "</Project>",
+    ].join("\n"),
+    after: [
+      '<Project Sdk="Microsoft.NET.Sdk.Web">',
+      "  <TargetFramework>net8.0</TargetFramework>",
+      "  <Nullable>enable</Nullable>",
+      "</Project>",
+    ].join("\n"),
+    evidence: [
+      "MSBuild project parsed structurally",
+      "COM/custom-target blocker scan passed",
+      "Native build remains approval-gated",
+    ],
+    assumptions: [
+      "The configured target remains net8.0 until an approver changes the target manifest.",
+      "packages.config remains until restore succeeds.",
+    ],
+  },
+  validationSummary: {
+    projectInventory: "1/1 parsed",
+    routeInventory: "1 route captured",
+    sdkAvailability: "runner required",
+    databaseTests: "required",
+    targetSelection: "configured",
+  },
+};
+
 export const modernizationRecipes = [
   ["JavaScript to TypeScript", "JavaScript", "TypeScript", "Deterministic"],
   ["CommonJS to ESM", "CommonJS", "ESM", "Deterministic"],
@@ -86,6 +170,11 @@ export const modernizationRecipes = [
   ["Typed environment configuration", "process.env", "Typed config", "Additive"],
   ["Deprecated dependency report", "Dependencies", "Assessment", "Report only"],
   ["Edge runtime report", "Node.js", "Edge assessment", "Report only"],
+  [".NET Framework to modern .NET", ".NET Framework", "Configured .NET target", "Staged"],
+  ["ASP.NET to ASP.NET Core", "MVC / Web API", "ASP.NET Core", "Scaffold + report"],
+  ["Entity Framework 6 to EF Core", "EF6", "EF Core assessment", "Report only"],
+  ["WCF modernization assessment", "WCF", "CoreWCF / gRPC / API", "Report only"],
+  ["Windows Service to Worker Service", "Windows Service", "Worker Service", "Additive scaffold"],
 ] as const;
 
 export const demoReport = {
@@ -114,4 +203,47 @@ export const demoReport = {
     ["Tests", "144/144 passed"],
     ["Responsive screenshots", "12/12 matched"],
   ],
+};
+
+export const dotNetDemoReport = {
+  id: "phase-3-dotnet-validation",
+  title: ".NET modernization compatibility report",
+  repository: dotNetDemoRepository.name,
+  generatedAt: "2026-07-23",
+  languageBreakdown: [
+    { language: "C#", value: 76 },
+    { language: "MSBuild / XML", value: 18 },
+    { language: "Other", value: 6 },
+  ],
+  dependencies: ["EntityFramework 6.4.4", "System.Web", "System.ServiceModel"],
+  routes: ["GET /api/users/{id}"],
+  environmentVariables: ["ConnectionStrings:LegacyDatabase"],
+  blockers: [
+    "The local machine has a .NET runtime but no SDK; native validation must run on a registered runner.",
+    "EF6 and WCF remain assessment-first and require explicit target decisions.",
+    "HttpContext.Current requires an ASP.NET Core compatibility decision.",
+  ],
+  sequence: [
+    ".NET Framework to modern .NET",
+    "ASP.NET to ASP.NET Core",
+    "EF6 compatibility assessment",
+    "WCF target assessment",
+    "Windows Service to Worker Service",
+  ],
+  behaviouralValidation: [
+    ["MSBuild projects", "1/1 parsed"],
+    ["ASP.NET routes", "1 captured"],
+    ["NuGet inventory", "2 packages"],
+    ["System.Web usages", "2 review items"],
+    ["Linux readiness", "70/100"],
+    ["Container readiness", "74/100"],
+  ],
+  compatibility: {
+    targetFramework: "net8.0 (configured)",
+    projectFormat: "Legacy → SDK-style eligible",
+    ef6: "Assessment only · database unchanged",
+    wcf: "CoreWCF recommended for compatibility review",
+    windowsService: "Worker Service scaffold eligible",
+    nativeValidation: "Blocked until .NET SDK runner is available",
+  },
 };

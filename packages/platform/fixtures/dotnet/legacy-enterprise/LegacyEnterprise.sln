@@ -1,0 +1,6 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LegacyWeb", "src\LegacyWeb\LegacyWeb.csproj", "{D108AEB8-1BD9-4D16-9385-D86F72AAB3A3}"
+EndProject
+Global
+EndGlobal

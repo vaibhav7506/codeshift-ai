@@ -1,0 +1,6 @@
+{
+  "targetFramework": "net8.0",
+  "aspNetCoreTargetFramework": "net8.0",
+  "allowWindowsCompatibility": false,
+  "containerTarget": "linux"
+}
