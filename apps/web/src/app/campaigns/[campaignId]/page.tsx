@@ -47,10 +47,18 @@ export default async function CampaignDetailPage({
         />
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {[
-            ["Status", campaign.status],
+            ["Current stage", campaign.status],
             ["Risk", `${campaign.riskScore}/100 · ${campaign.risk}`],
-            ["Affected files", String(campaign.affectedFiles)],
+            ["Scope", campaign.scope.join(", ")],
+            ["Changed files", String(campaign.affectedFiles)],
             ["Recipe", `${campaign.recipe} · ${campaign.version}`],
+            ["Validation", campaign.validationStatus],
+            ["Approval", campaign.approvalStatus],
+            ["Runner", campaign.runnerStatus],
+            ["Cost", campaign.cost],
+            ["Duration", campaign.duration],
+            ["Checkpoint", campaign.checkpoint],
+            ["PR status", campaign.prStatus],
           ].map(([label, value]) => (
             <Card key={label} className="p-4 shadow-none">
               <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-text-muted">
@@ -151,7 +159,7 @@ export default async function CampaignDetailPage({
               <CardContent>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-text-muted">Checkpoint</span>
-                  <Badge>Not captured</Badge>
+                  <Badge>{campaign.checkpoint}</Badge>
                 </div>
                 <p className="mt-3 text-sm text-text-secondary">
                   A commit, file hashes, lockfile hashes, configuration, and validation baseline will be captured before execution.

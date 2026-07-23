@@ -8,6 +8,7 @@ import {
   Boxes,
   ChevronDown,
   FileCheck2,
+  Gauge,
   GitBranch,
   PanelLeft,
   Plug,
@@ -32,6 +33,7 @@ const navigation = [
   { label: "Runners", href: "/runners", icon: Workflow },
   { label: "Integrations", href: "/integrations", icon: Plug },
   { label: "Audit", href: "/audit", icon: ScrollText },
+  { label: "Usage", href: "/usage", icon: Gauge },
   { label: "Settings", href: "/settings", icon: Settings },
 ];
 
@@ -60,7 +62,7 @@ export function AppShell({
                 Personal workspace
               </p>
               <p className="mt-0.5 font-mono text-[9px] text-text-muted">
-                LOCAL · PHASE 4
+                LOCAL · COMPLETE
               </p>
             </div>
             <ChevronDown className="size-3.5 text-text-muted" />

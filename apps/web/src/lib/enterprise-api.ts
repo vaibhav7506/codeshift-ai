@@ -10,6 +10,7 @@ import {
   type EnterpriseRole,
   type TenantContext,
 } from "@codeshift/platform/enterprise-runtime";
+import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 
 const apiRateLimiter = new SlidingWindowRateLimiter(120, 60_000);
@@ -65,21 +66,29 @@ export class ApiError extends Error {
 }
 
 export function apiError(error: unknown): NextResponse {
+  const requestId = randomUUID();
   const status = error instanceof ApiError
     ? error.status
     : error instanceof Error && "code" in error && error.code === "FORBIDDEN"
       ? 403
       : 400;
   const code = error instanceof ApiError ? error.code : status === 403 ? "FORBIDDEN" : "INVALID_REQUEST";
-  return secureJson({ error: { code, message: error instanceof Error ? error.message : "Request failed." } }, status);
+  return secureJson({
+    error: {
+      code,
+      message: error instanceof Error ? error.message : "Request failed.",
+      requestId,
+    },
+  }, status, requestId);
 }
 
-export function secureJson(body: unknown, status = 200): NextResponse {
+export function secureJson(body: unknown, status = 200, requestId?: string): NextResponse {
   const response = NextResponse.json(body, { status });
   for (const [name, value] of Object.entries(secureResponseHeaders)) {
     response.headers.set(name, value);
   }
   response.headers.set("Cache-Control", "no-store");
+  if (requestId) response.headers.set("X-Request-Id", requestId);
   return response;
 }
 

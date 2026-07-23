@@ -12,6 +12,7 @@ interface RichDiffChange {
   after: string;
   evidence: string[];
   assumptions: string[];
+  testsPerformed: string[];
 }
 
 export function RichDiffReview({ change }: { change: RichDiffChange }) {
@@ -43,6 +44,7 @@ export function RichDiffReview({ change }: { change: RichDiffChange }) {
           <Evidence label="Reason" values={[change.reason]} />
           <Evidence label="Behaviour potentially affected" values={[change.behaviour]} />
           <Evidence label="Validation evidence" values={change.evidence} />
+          <Evidence label="Tests performed" values={change.testsPerformed} />
           <Evidence label="Unsupported assumptions" values={change.assumptions} />
         </div>
         <div className="rounded-lg border border-border bg-surface-muted p-3 text-xs text-text-secondary">

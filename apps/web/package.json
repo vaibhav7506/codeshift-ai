@@ -6,7 +6,7 @@
     "dev": "next dev",
     "prebuild": "npm --prefix ../.. run build --workspace=@codeshift/shared --workspace=@codeshift/analyzer --workspace=@codeshift/migrator --workspace=@codeshift/platform",
     "build": "next build",
-    "start": "next start",
+    "start": "node .next/standalone/apps/web/server.js",
     "typecheck": "tsc --noEmit",
     "clean": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\""
   },

@@ -38,6 +38,12 @@ export const demoCampaign = {
   protectedFiles: [".github/**", "package-lock.json"],
   validations: ["npm test", "npm run build", "npm run typecheck"],
   checkpoint: "Pending execution approval",
+  approvalStatus: "Execution approval pending",
+  runnerStatus: "Registered · idle",
+  validationStatus: "Baseline captured",
+  cost: "$0.00",
+  duration: "Not started",
+  prStatus: "Blocked until final approval",
   stages: [
     { name: "Repository analysis", status: "COMPLETED" },
     { name: "Migration planning", status: "COMPLETED" },
@@ -77,6 +83,7 @@ export const demoCampaign = {
       "Route parity 18/18 passed",
     ],
     assumptions: ["Session-backed authentication is not used in this scope."],
+    testsPerformed: ["Authentication integration suite", "Route parity fixtures"],
   },
   validationSummary: {
     routeParity: "18/18 passed",
@@ -106,6 +113,12 @@ export const dotNetDemoCampaign = {
     "database integration tests",
   ],
   checkpoint: "Pending execution approval",
+  approvalStatus: "Two approvals required",
+  runnerStatus: "Registered · .NET 8 available",
+  validationStatus: "Native validation pending",
+  cost: "$0.00",
+  duration: "Not started",
+  prStatus: "Blocked until final approval",
   stages: [
     { name: "Roslyn/MSBuild analysis", status: "COMPLETED" },
     { name: "Compatibility planning", status: "COMPLETED" },
@@ -148,6 +161,7 @@ export const dotNetDemoCampaign = {
       "The configured target remains net8.0 until an approver changes the target manifest.",
       "packages.config remains until restore succeeds.",
     ],
+    testsPerformed: ["MSBuild structural fixture", "Compatibility blocker scan"],
   },
   validationSummary: {
     projectInventory: "1/1 parsed",
