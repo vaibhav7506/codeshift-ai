@@ -3,3 +3,7 @@ export * from "./enterprise-security.js";
 export * from "./github-governance.js";
 export * from "./governance.js";
 export * from "./runner-governance.js";
+export * from "./deployment.js";
+export * from "./observability.js";
+export * from "./reliability.js";
+export * from "./usage.js";

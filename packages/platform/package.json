@@ -34,6 +34,11 @@
       "types": "./src/enterprise.ts",
       "import": "./dist/enterprise.js",
       "default": "./dist/enterprise.js"
+    },
+    "./recipe-sdk": {
+      "types": "./src/recipe-sdk.ts",
+      "import": "./dist/recipe-sdk.js",
+      "default": "./dist/recipe-sdk.js"
     }
   },
   "dependencies": {

@@ -28,6 +28,12 @@ export class InMemoryBackgroundJobQueue {
   private readonly jobs = new Map<string, BackgroundJobRecord>();
   private readonly idempotency = new Map<string, string>();
   private readonly cancellations = new Set<string>();
+  private readonly deadLetterJobs: BackgroundJobRecord[] = [];
+
+  constructor(
+    private readonly maximumQueueDepth = 1_000,
+    private readonly retryDelay: (attempt: number) => Promise<void> = async () => {},
+  ) {}
 
   enqueue(options: BackgroundJobOptions): BackgroundJobRecord {
     const ownerKey = `${options.organizationId}:${options.workspaceId}:${options.idempotencyKey}`;
@@ -36,6 +42,9 @@ export class InMemoryBackgroundJobQueue {
     if (options.timeoutMs <= 0 || options.maxAttempts <= 0) {
       throw new Error("Jobs require a positive timeout and attempt limit.");
     }
+    const queued = [...this.jobs.values()].filter((job) =>
+      job.status === "QUEUED" || job.status === "RUNNING").length;
+    if (queued >= this.maximumQueueDepth) throw new Error("Queue backpressure limit reached.");
 
     const record: BackgroundJobRecord = {
       ...options,
@@ -88,10 +97,12 @@ export class InMemoryBackgroundJobQueue {
         record.failureReason =
           error instanceof Error ? sanitizeLog(error.message) : "Unknown job failure.";
         record.logs.push({ level: "error", message: record.failureReason });
+        if (record.attempts < record.maxAttempts) await this.retryDelay(record.attempts);
       }
     }
 
     record.status = "FAILED";
+    this.deadLetterJobs.push(structuredClone(record));
     return structuredClone(record);
   }
 
@@ -104,6 +115,22 @@ export class InMemoryBackgroundJobQueue {
 
   get(id: string): BackgroundJobRecord {
     return structuredClone(this.require(id));
+  }
+
+  resume(id: string): BackgroundJobRecord {
+    const record = this.require(id);
+    if (record.status !== "FAILED" && record.status !== "CANCELLED") {
+      throw new Error("Only failed or cancelled jobs can be resumed.");
+    }
+    this.cancellations.delete(id);
+    record.status = "QUEUED";
+    record.attempts = 0;
+    record.failureReason = undefined;
+    return structuredClone(record);
+  }
+
+  deadLetters(): BackgroundJobRecord[] {
+    return this.deadLetterJobs.map((record) => structuredClone(record));
   }
 
   private require(id: string): BackgroundJobRecord {

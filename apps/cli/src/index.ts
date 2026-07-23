@@ -26,6 +26,7 @@ import {
 } from "./output.js";
 import { runGitHubPRFlow } from "./github-pr.js";
 import { runLocalValidation } from "./validation.js";
+import { runRecipeCommand } from "./recipe-command.js";
 
 const VERSION = "0.1.0";
 const recipeRegistry = createDefaultRecipeRegistry();
@@ -62,6 +63,10 @@ async function main(): Promise<number> {
 
     if (command === "pr") {
       return await runPullRequest(commandArgs);
+    }
+
+    if (command === "recipe") {
+      return await runRecipeCommand(commandArgs);
     }
 
     throw new Error(`Unknown command "${command}". Run codeshift-ai --help.`);

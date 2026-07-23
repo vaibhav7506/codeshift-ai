@@ -1,0 +1,19 @@
+{
+  "name": "@codeshift/runner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "codeshift-runner": "./dist/index.js"
+  },
+  "dependencies": {
+    "@codeshift/platform": "*"
+  },
+  "scripts": {
+    "prebuild": "npm --prefix ../.. run build --workspace=@codeshift/platform",
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test dist/*.test.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\""
+  }
+}
