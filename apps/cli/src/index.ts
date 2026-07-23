@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 
 import { parseArgs } from "node:util";
-import { generateMigrationPlan } from "@codeshift/migrator/runtime";
-import { migrateJavaScriptToTypeScript } from "@codeshift/migrator/migration-runtime";
+import {
+  createDefaultRecipeRegistry,
+  type JavaScriptToTypeScriptRecipe,
+} from "@codeshift/platform/runtime";
 import {
   createMigrationAIEnhancement,
   resolveCLIAIConfiguration,
@@ -26,6 +28,7 @@ import { runGitHubPRFlow } from "./github-pr.js";
 import { runLocalValidation } from "./validation.js";
 
 const VERSION = "0.1.0";
+const recipeRegistry = createDefaultRecipeRegistry();
 
 async function main(): Promise<number> {
   const [command, ...commandArgs] = process.argv.slice(2);
@@ -128,9 +131,12 @@ async function runPlan(args: string[]): Promise<number> {
     await writeAnalysisArtifact(cwd, analysis);
   }
 
-  const plan = generateMigrationPlan({
+  const recipe = recipeRegistry.get("js-to-ts");
+  const plan = await recipe.plan({
+    repositoryId: analysis.repoUrl,
     analysis,
-    selectedScope: options.values.path,
+    files: [],
+    approvedScope: options.values.path,
   });
   const artifactPath = await writeMigrationPlanArtifact(cwd, plan);
   process.stdout.write(
@@ -175,10 +181,29 @@ async function runMigrate(args: string[]): Promise<number> {
     ? resolveCLIAIConfiguration(options.values.provider)
     : null;
   const cwd = process.cwd();
-  const result = await migrateJavaScriptToTypeScript({
-    rootDir: cwd,
-    selectedScope: options.values.path,
+  let analysis = await readAnalysisArtifact(cwd);
+  if (!analysis) {
+    analysis = await analyzeLocalRepository(cwd);
+    await writeAnalysisArtifact(cwd, analysis);
+  }
+  const recipe = recipeRegistry.get(
+    "js-to-ts",
+  ) as JavaScriptToTypeScriptRecipe;
+  const plan = await recipe.plan({
+    repositoryId: analysis.repoUrl,
+    analysis,
+    files: [],
+    approvedScope: options.values.path,
   });
+  const transform = await recipe.transform({
+    repositoryId: analysis.repoUrl,
+    analysis,
+    files: [],
+    approvedScope: options.values.path,
+    rootPath: cwd,
+    plan,
+  });
+  const result = transform.execution;
   process.stdout.write(formatMigrationReport(result));
 
   if (aiConfiguration) {

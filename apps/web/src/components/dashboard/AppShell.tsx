@@ -7,8 +7,10 @@ import {
   BarChart3,
   Boxes,
   ChevronDown,
+  FileCheck2,
   GitBranch,
   PanelLeft,
+  ScrollText,
   Settings,
 } from "lucide-react";
 import { Logo } from "@/components/landing/Hero";
@@ -17,8 +19,10 @@ import { cn } from "@/lib/utils";
 
 const navigation = [
   { label: "Overview", href: "/dashboard", icon: BarChart3 },
-  { label: "Repositories", href: "/dashboard#repositories", icon: Boxes },
-  { label: "Migration Runs", href: "/dashboard#runs", icon: GitBranch },
+  { label: "Repositories", href: "/repositories", icon: Boxes },
+  { label: "Recipes", href: "/recipes", icon: ScrollText },
+  { label: "Campaigns", href: "/campaigns", icon: GitBranch },
+  { label: "Reports", href: "/reports/phase-1-baseline", icon: FileCheck2 },
   { label: "Settings", href: "/settings", icon: Settings },
 ];
 
@@ -47,7 +51,7 @@ export function AppShell({
                 Personal workspace
               </p>
               <p className="mt-0.5 font-mono text-[9px] text-text-muted">
-                LOCAL · PHASE 8
+                LOCAL · PHASE 1
               </p>
             </div>
             <ChevronDown className="size-3.5 text-text-muted" />
@@ -63,9 +67,8 @@ export function AppShell({
             const active =
               item.href === "/dashboard"
                 ? pathname === "/dashboard"
-                : item.href === "/settings"
-                  ? pathname === "/settings"
-                  : false;
+                : pathname === item.href ||
+                  (item.href !== "/" && pathname.startsWith(`${item.href}/`));
 
             return (
               <Link

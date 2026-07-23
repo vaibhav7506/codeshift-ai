@@ -1,0 +1,129 @@
+import Link from "next/link";
+import { Check, Circle, LockKeyhole, RotateCcw } from "lucide-react";
+import { AppShell } from "@/components/dashboard/AppShell";
+import { PageHeading } from "@/components/platform/PageHeading";
+import { Badge } from "@/components/ui/Badge";
+import { Button, buttonVariants } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { demoCampaign } from "@/lib/platform-demo";
+
+export default async function CampaignDetailPage({
+  params,
+}: {
+  params: Promise<{ campaignId: string }>;
+}) {
+  const { campaignId } = await params;
+
+  return (
+    <AppShell
+      title={demoCampaign.name}
+      description="Scope, dependencies, approval state, validation, and rollback."
+    >
+      <div className="space-y-5">
+        <PageHeading
+          eyebrow={`Campaign · ${campaignId}`}
+          title={demoCampaign.name}
+          description="No transformation can start until the approved scope, checkpoint policy, and validation contract are accepted."
+          action={
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" disabled>
+                <RotateCcw className="size-4" />
+                Roll back
+              </Button>
+              <Button size="sm">
+                <LockKeyhole className="size-4" />
+                Request approval
+              </Button>
+            </div>
+          }
+        />
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            ["Status", demoCampaign.status],
+            ["Risk", `${demoCampaign.riskScore}/100 · ${demoCampaign.risk}`],
+            ["Affected files", String(demoCampaign.affectedFiles)],
+            ["Recipe", `${demoCampaign.recipe} · ${demoCampaign.version}`],
+          ].map(([label, value]) => (
+            <Card key={label} className="p-4 shadow-none">
+              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-text-muted">
+                {label}
+              </p>
+              <p className="mt-2 text-sm font-semibold text-text-primary">{value}</p>
+            </Card>
+          ))}
+        </div>
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
+          <Card className="shadow-none">
+            <CardHeader>
+              <h3 className="text-sm font-semibold">Execution stages</h3>
+            </CardHeader>
+            <CardContent className="space-y-1">
+              {demoCampaign.stages.map((stage, index) => {
+                const completed = stage.status === "COMPLETED";
+                return (
+                  <div key={stage.name} className="flex items-center gap-3 border-b border-border py-3 last:border-0">
+                    <div className={`flex size-7 items-center justify-center rounded-full border ${completed ? "border-success/30 bg-success/10 text-success" : "border-border bg-surface-muted text-text-muted"}`}>
+                      {completed ? <Check className="size-3.5" /> : <Circle className="size-3" />}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-text-primary">
+                        {index + 1}. {stage.name}
+                      </p>
+                      <p className="mt-0.5 font-mono text-[10px] text-text-muted">
+                        {stage.status}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+          <div className="space-y-5">
+            <Card className="shadow-none">
+              <CardHeader>
+                <h3 className="text-sm font-semibold">Approved boundaries</h3>
+              </CardHeader>
+              <CardContent className="space-y-4 text-xs">
+                <Boundary label="Scope" values={demoCampaign.scope} />
+                <Boundary label="Protected" values={demoCampaign.protectedFiles} />
+                <Boundary label="Validation" values={demoCampaign.validations} />
+              </CardContent>
+            </Card>
+            <Card className="shadow-none">
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-text-muted">Checkpoint</span>
+                  <Badge>Not captured</Badge>
+                </div>
+                <p className="mt-3 text-sm text-text-secondary">
+                  A commit, file hashes, lockfile hashes, configuration, and validation baseline will be captured before execution.
+                </p>
+                <Link
+                  href="/reports/phase-1-baseline"
+                  className={buttonVariants({ variant: "ghost", size: "sm", className: "mt-3 px-0" })}
+                >
+                  View analysis report
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </AppShell>
+  );
+}
+
+function Boundary({ label, values }: { label: string; values: string[] }) {
+  return (
+    <div>
+      <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-text-muted">
+        {label}
+      </p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {values.map((value) => (
+          <Badge key={value}>{value}</Badge>
+        ))}
+      </div>
+    </div>
+  );
+}

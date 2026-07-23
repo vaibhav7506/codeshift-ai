@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "npm --prefix ../.. run build --workspace=@codeshift/shared --workspace=@codeshift/analyzer --workspace=@codeshift/migrator --workspace=@codeshift/platform",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
@@ -12,9 +13,10 @@
   "dependencies": {
     "@codeshift/analyzer": "*",
     "@codeshift/migrator": "*",
+    "@codeshift/platform": "*",
     "@codeshift/shared": "*",
     "lucide-react": "^0.468.0",
-    "next": "^15.3.4",
+    "next": "^15.5.21",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

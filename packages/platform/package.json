@@ -1,0 +1,40 @@
+{
+  "name": "@codeshift/platform",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./runtime": {
+      "types": "./src/index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./campaign-runtime": {
+      "types": "./src/campaign.ts",
+      "import": "./dist/campaign.js",
+      "default": "./dist/campaign.js"
+    },
+    "./js-to-ts-metadata-runtime": {
+      "types": "./src/js-to-ts-metadata.ts",
+      "import": "./dist/js-to-ts-metadata.js",
+      "default": "./dist/js-to-ts-metadata.js"
+    }
+  },
+  "dependencies": {
+    "@codeshift/analyzer": "*",
+    "@codeshift/migrator": "*",
+    "@codeshift/shared": "*"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test dist/*.test.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\""
+  }
+}

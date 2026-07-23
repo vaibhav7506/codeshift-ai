@@ -3,7 +3,7 @@ import {
   lstat,
   readFile,
 } from "node:fs/promises";
-import { isAbsolute, join, relative, resolve } from "node:path";
+import { isAbsolute, join, resolve } from "node:path";
 import { createInterface, type Interface } from "node:readline/promises";
 import { Writable } from "node:stream";
 import type {
