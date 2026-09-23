@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { Check, Circle, LockKeyhole, RotateCcw } from "lucide-react";
+import { Check, Circle, RotateCcw } from "lucide-react";
 import { AppShell } from "@/components/dashboard/AppShell";
 import { PageHeading } from "@/components/platform/PageHeading";
 import { DotNetCompatibilityPanel } from "@/components/platform/DotNetCompatibilityPanel";
 import { RichDiffReview } from "@/components/platform/RichDiffReview";
+import { CampaignApprovalButton } from "@/components/platform/CampaignApprovalButton";
 import { Badge } from "@/components/ui/Badge";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
@@ -38,10 +39,7 @@ export default async function CampaignDetailPage({
                 <RotateCcw className="size-4" />
                 Roll back
               </Button>
-              <Button size="sm">
-                <LockKeyhole className="size-4" />
-                Request approval
-              </Button>
+              <CampaignApprovalButton campaignId={campaignId} />
             </div>
           }
         />

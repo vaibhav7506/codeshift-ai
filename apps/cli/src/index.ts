@@ -27,6 +27,8 @@ import {
 import { runGitHubPRFlow } from "./github-pr.js";
 import { runLocalValidation } from "./validation.js";
 import { runRecipeCommand } from "./recipe-command.js";
+import { runCampaignCommand } from "./campaign-command.js";
+import { ACTIVE_RECIPE_CATALOG } from "@codeshift/platform/recipe-catalog-runtime";
 
 const VERSION = "0.1.0";
 const recipeRegistry = createDefaultRecipeRegistry();
@@ -67,6 +69,21 @@ async function main(): Promise<number> {
 
     if (command === "recipe") {
       return await runRecipeCommand(commandArgs);
+    }
+    if (command === "recipes") {
+      if (commandArgs.length !== 1 || commandArgs[0] !== "list") {
+        throw new Error("Use codeshift-ai recipes list.");
+      }
+      process.stdout.write(
+        `${ACTIVE_RECIPE_CATALOG.map(
+          (recipe) =>
+            `${recipe.id.padEnd(36)} ${recipe.status.padEnd(12)} ${recipe.name}`,
+        ).join("\n")}\n`,
+      );
+      return 0;
+    }
+    if (command === "campaign") {
+      return await runCampaignCommand(commandArgs);
     }
 
     throw new Error(`Unknown command "${command}". Run codeshift-ai --help.`);

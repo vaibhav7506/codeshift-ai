@@ -1,11 +1,18 @@
 import { createMigrationCampaign } from "@codeshift/platform/campaign-runtime";
+import { getRecipeCatalogEntry } from "@codeshift/platform/recipe-catalog-runtime";
 import { NextResponse } from "next/server";
-import { apiError, requireApiPermission } from "@/lib/enterprise-api";
+import {
+  apiError,
+  assertMutationSecurity,
+  requireApiPermission,
+} from "@/lib/enterprise-api";
+import { saveCampaign } from "@/lib/campaign-store";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
+    assertMutationSecurity(request);
     const context = requireApiPermission(request, "CAMPAIGN_MANAGE");
     const body: unknown = await request.json();
     if (!isCampaignRequest(body)) {
@@ -13,6 +20,20 @@ export async function POST(request: Request) {
         "INVALID_CAMPAIGN_REQUEST",
         "Provide a repository, campaign name, approved scope, and selected recipe.",
         400,
+      );
+    }
+    const selectedRecipe = body.selectedRecipes[0];
+    const registeredRecipe = getRecipeCatalogEntry(selectedRecipe.id);
+    if (
+      !registeredRecipe ||
+      registeredRecipe.version !== selectedRecipe.version ||
+      registeredRecipe.status !== "active" ||
+      !registeredRecipe.supportsTransformation
+    ) {
+      return errorResponse(
+        "RECIPE_NOT_EXECUTABLE",
+        "Select an enabled recipe with detection, planning, transformation, and validation support.",
+        422,
       );
     }
 
@@ -23,6 +44,11 @@ export async function POST(request: Request) {
       repositoryId: body.repositoryId,
       name: body.name,
       selectedRecipes: body.selectedRecipes,
+      recipeId: selectedRecipe.id,
+      recipeVersion: selectedRecipe.version,
+      recipeConfiguration: body.recipeConfiguration,
+      targetTechnology: registeredRecipe.targetTechnology,
+      targetVersion: body.targetVersion,
       approvedScope: {
         paths: body.paths,
         protectedPaths: body.protectedPaths ?? [],
@@ -30,6 +56,14 @@ export async function POST(request: Request) {
       riskScore: body.riskScore,
       estimatedAffectedFiles: body.estimatedAffectedFiles,
       validationRequirements: body.validationRequirements,
+    });
+    saveCampaign({
+      campaign,
+      repository: body.repositoryId,
+      targetBranch: `codeshift-ai/${body.id}`,
+      runnerStatus: "No runner connected",
+      authorId: context.userId,
+      approvalStageStatus: "PENDING",
     });
 
     return NextResponse.json({ campaign }, { status: 201 });
@@ -59,6 +93,8 @@ interface CampaignRequest {
   riskScore: number;
   estimatedAffectedFiles: number;
   validationRequirements: string[];
+  recipeConfiguration?: Record<string, string | number | boolean | string[]>;
+  targetVersion?: string;
 }
 
 function isCampaignRequest(value: unknown): value is CampaignRequest {
@@ -76,6 +112,26 @@ function isCampaignRequest(value: unknown): value is CampaignRequest {
     typeof value.estimatedAffectedFiles === "number" &&
     value.estimatedAffectedFiles >= 0 &&
     isStringList(value.validationRequirements, 50)
+    && (value.recipeConfiguration === undefined ||
+      isRecipeConfiguration(value.recipeConfiguration))
+    && (value.targetVersion === undefined ||
+      isBoundedString(value.targetVersion, 100))
+  );
+}
+
+function isRecipeConfiguration(
+  value: unknown,
+): value is Record<string, string | number | boolean | string[]> {
+  if (!isRecord(value) || Object.keys(value).length > 30) return false;
+  return Object.entries(value).every(
+    ([key, entry]) =>
+      /^[a-zA-Z][a-zA-Z0-9_-]{0,63}$/.test(key) &&
+      (typeof entry === "boolean" ||
+        (typeof entry === "number" && Number.isFinite(entry)) ||
+        isBoundedString(entry, 300) ||
+        (Array.isArray(entry) &&
+          entry.length <= 50 &&
+          entry.every((item) => isBoundedString(item, 300)))),
   );
 }
 

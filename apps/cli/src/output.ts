@@ -6,6 +6,7 @@ import type {
 } from "@codeshift/shared";
 import type { ValidationRunResult } from "./validation.js";
 import type { AIEnhancementResult } from "./ai-enhancement.js";
+import { CLI_BINARY_NAME, CLI_COMMAND_MANIFEST } from "@codeshift/shared";
 
 const DIVIDER = "-".repeat(58);
 
@@ -187,30 +188,22 @@ export function formatValidationReport(result: ValidationRunResult): string {
 }
 
 export function formatHelp(): string {
+  const commands = CLI_COMMAND_MANIFEST.map(
+    (command) => `  ${command.command.padEnd(10)} ${command.summary}`,
+  );
   return [
     "",
     "CodeShift AI",
     "Local repository analysis, migration, validation, and pull requests",
     "",
     "Usage:",
-    "  codeshift-ai analyze",
-    "  codeshift-ai plan --target js-to-ts --path <scope>",
-    "  codeshift-ai migrate --target js-to-ts --path <scope>",
-    "  codeshift-ai migrate --target js-to-ts --path <scope> --ai --provider openai",
-    "  codeshift-ai validate",
-    "  codeshift-ai pr",
-    "  codeshift-ai recipe <create|test|validate|inspect> <recipe-name>",
+    ...CLI_COMMAND_MANIFEST.map((command) => `  ${command.usage}`),
     "",
     "Commands:",
-    "  analyze   Analyze the repository in the current directory",
-    "  plan      Generate a deterministic migration plan",
-    "  migrate   Apply a scoped JavaScript to TypeScript migration",
-    "  validate  Run available local validation scripts and save logs",
-    "  pr        Review and create an explicitly approved GitHub pull request",
-    "  recipe    Scaffold and verify local Recipe SDK projects",
+    ...commands,
     "",
     "Options:",
-    "  -h, --help       Show command help",
+    `  -h, --help       Show ${CLI_BINARY_NAME} command help`,
     "  -v, --version    Show CLI version",
     "",
   ].join("\n");
