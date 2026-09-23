@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const REQUEST_ID = /^[a-zA-Z0-9_.:-]{8,128}$/;
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const incoming = request.headers.get("x-request-id");
   const requestId = incoming && REQUEST_ID.test(incoming) ? incoming : crypto.randomUUID();
   const requestHeaders = new Headers(request.headers);

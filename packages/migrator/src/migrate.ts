@@ -694,7 +694,7 @@ async function assertArtifactPathsAreSafe(root: string): Promise<void> {
   if (!directoryStats) return;
 
   for (const artifactPath of [PATCH_ARTIFACT, SUMMARY_ARTIFACT]) {
-    const stats = await lstatIfExists(join(root, artifactPath));
+    const stats = await lstatIfExists(join(/* turbopackIgnore: true */ root, artifactPath));
 
     if (stats && (stats.isSymbolicLink() || !stats.isFile())) {
       throw new MigrationExecutionError(

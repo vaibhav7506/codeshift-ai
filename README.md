@@ -108,6 +108,21 @@ codeshift-ai pr
 
 The migrate command does not commit or push. Git mutations occur only through `pr` after separate confirmation.
 
+Approved campaign workflow:
+
+```bash
+codeshift-ai recipes list
+codeshift-ai campaign connect --campaign <campaign-id> --token <temporary-token>
+codeshift-ai campaign preflight --campaign <campaign-id>
+codeshift-ai campaign execute --campaign <campaign-id>
+codeshift-ai campaign validate --campaign <campaign-id>
+codeshift-ai campaign report --campaign <campaign-id>
+codeshift-ai campaign rollback --campaign <campaign-id>
+codeshift-ai campaign create-pr --campaign <campaign-id>
+```
+
+Campaign execution reads the selected recipe and approved scope from the signed, short-lived campaign context. It does not fall back to JavaScript-to-TypeScript.
+
 Recipe SDK:
 
 ```bash

@@ -1,6 +1,6 @@
 # Local development and troubleshooting
 
-Requirements: Node.js 20 or newer (CI/container use Node 22), npm 10+, Git, and the .NET SDK only for native .NET fixture validation.
+Requirements: Node.js 20.9 or newer (CI/container use Node 22), npm 10+, Git, and the .NET SDK only for native .NET fixture validation.
 
 ```powershell
 npm ci
