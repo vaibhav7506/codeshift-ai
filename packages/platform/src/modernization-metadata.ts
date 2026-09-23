@@ -1,4 +1,5 @@
 import type {
+  RecipeCategory,
   RecipeMetadata,
   RecipePermission,
 } from "./recipe.js";
@@ -7,6 +8,9 @@ export function modernizationMetadata(input: {
   id: string;
   name: string;
   description: string;
+  category: RecipeCategory;
+  assessmentOnly?: boolean;
+  visibility?: "public" | "internal";
   sourceTechnology: string;
   targetTechnology: string;
   sourceVersions?: string[];
@@ -25,6 +29,9 @@ export function modernizationMetadata(input: {
     version: "1.0.0",
     name: input.name,
     description: input.description,
+    category: input.category,
+    executionMode: input.assessmentOnly ? "assessment" : "transform",
+    visibility: input.visibility ?? "public",
     sourceTechnology: input.sourceTechnology,
     targetTechnology: input.targetTechnology,
     supportedVersions: {
@@ -37,15 +44,17 @@ export function modernizationMetadata(input: {
       "write-approved-scope",
       "run-validation",
     ],
-    capabilities: [
-      "detect",
-      "assess",
-      "plan",
-      "transform",
-      "validate",
-      "explain",
-      "rollback",
-    ],
+    capabilities: input.assessmentOnly
+      ? ["detect", "assess", "plan", "validate", "explain"]
+      : [
+          "detect",
+          "assess",
+          "plan",
+          "transform",
+          "validate",
+          "explain",
+          "rollback",
+        ],
     filesItMayModify: input.filesItMayModify,
     dependencies: input.dependencies ?? [],
     knownLimitations: input.knownLimitations,

@@ -13,6 +13,7 @@ export const EXPRESS_TO_HONO_METADATA = modernizationMetadata({
   name: "Express to Hono",
   description:
     "Converts supported Express applications, routes, and middleware while preserving route order and reporting Node-specific blockers.",
+  category: "backend-runtime",
   sourceTechnology: "Express",
   targetTechnology: "Hono",
   sourceVersions: ["Express 4.x", "Express 5.x"],

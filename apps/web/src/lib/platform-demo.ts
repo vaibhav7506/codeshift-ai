@@ -113,7 +113,7 @@ export const dotNetDemoCampaign = {
     "database integration tests",
   ],
   checkpoint: "Pending execution approval",
-  approvalStatus: "Two approvals required",
+  approvalStatus: "One approval required",
   runnerStatus: "Registered · .NET 8 available",
   validationStatus: "Native validation pending",
   cost: "$0.00",
@@ -171,25 +171,6 @@ export const dotNetDemoCampaign = {
     targetSelection: "configured",
   },
 };
-
-export const modernizationRecipes = [
-  ["JavaScript to TypeScript", "JavaScript", "TypeScript", "Deterministic"],
-  ["CommonJS to ESM", "CommonJS", "ESM", "Deterministic"],
-  ["Express to Hono", "Express", "Hono", "Review gated"],
-  ["Callbacks to async/await", "Callbacks", "async/await", "Deterministic subset"],
-  ["React classes to hooks", "React classes", "React hooks", "Behaviour gated"],
-  ["CSS to Tailwind CSS", "CSS", "Tailwind CSS", "Safe mode"],
-  ["ESLint flat configuration", "eslintrc", "Flat config", "Deterministic"],
-  ["Jest to Vitest", "Jest", "Vitest", "Review gated"],
-  ["Typed environment configuration", "process.env", "Typed config", "Additive"],
-  ["Deprecated dependency report", "Dependencies", "Assessment", "Report only"],
-  ["Edge runtime report", "Node.js", "Edge assessment", "Report only"],
-  [".NET Framework to modern .NET", ".NET Framework", "Configured .NET target", "Staged"],
-  ["ASP.NET to ASP.NET Core", "MVC / Web API", "ASP.NET Core", "Scaffold + report"],
-  ["Entity Framework 6 to EF Core", "EF6", "EF Core assessment", "Report only"],
-  ["WCF modernization assessment", "WCF", "CoreWCF / gRPC / API", "Report only"],
-  ["Windows Service to Worker Service", "Windows Service", "Worker Service", "Additive scaffold"],
-] as const;
 
 export const demoReport = {
   id: "phase-2-validation",

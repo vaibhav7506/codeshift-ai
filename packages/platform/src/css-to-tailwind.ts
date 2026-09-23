@@ -46,6 +46,7 @@ export const CSS_TO_TAILWIND_METADATA = modernizationMetadata({
   name: "CSS to Tailwind CSS",
   description:
     "Generates reviewable Tailwind utility suggestions while retaining original CSS until visual validation passes.",
+  category: "frontend-styling",
   sourceTechnology: "CSS",
   targetTechnology: "Tailwind CSS",
   filesItMayModify: ["<approved-scope>/**/*.css", "<approved-scope>/**/*.tailwind.json"],

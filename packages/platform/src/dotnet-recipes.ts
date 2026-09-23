@@ -18,6 +18,7 @@ export const DOTNET_FRAMEWORK_METADATA = modernizationMetadata({
   name: ".NET Framework to modern .NET",
   description:
     "Converts controlled legacy MSBuild projects to SDK style using an explicit target configuration and produces compatibility evidence.",
+  category: "dotnet-modernization",
   sourceTechnology: ".NET Framework and legacy MSBuild",
   targetTechnology: "configured modern .NET target",
   sourceVersions: [".NET Framework 4.x", "legacy MSBuild project format"],
@@ -55,6 +56,7 @@ export const ASPNET_CORE_METADATA = modernizationMetadata({
   name: "ASP.NET MVC/Web API to ASP.NET Core",
   description:
     "Builds an approval-gated ASP.NET Core migration scaffold and route compatibility report from Roslyn semantic data.",
+  category: "dotnet-modernization",
   sourceTechnology: "ASP.NET MVC and ASP.NET Web API",
   targetTechnology: "ASP.NET Core",
   sourceVersions: ["ASP.NET MVC 5", "ASP.NET Web API 2"],
@@ -93,6 +95,8 @@ export const EF6_TO_EF_CORE_METADATA = modernizationMetadata({
   name: "Entity Framework 6 to EF Core",
   description:
     "Produces an assessment-first EF compatibility report without changing application code or databases.",
+  category: "assessment",
+  assessmentOnly: true,
   sourceTechnology: "Entity Framework 6",
   targetTechnology: "Entity Framework Core",
   sourceVersions: ["Entity Framework 6.x"],
@@ -125,6 +129,8 @@ export const WCF_MODERNIZATION_METADATA = modernizationMetadata({
   name: "WCF modernization assessment",
   description:
     "Compares CoreWCF, gRPC, ASP.NET Core APIs, and retaining WCF without automatically selecting a target.",
+  category: "assessment",
+  assessmentOnly: true,
   sourceTechnology: "Windows Communication Foundation",
   targetTechnology: "CoreWCF, gRPC, ASP.NET Core API, or retained WCF",
   sourceVersions: ["WCF on .NET Framework"],
@@ -156,6 +162,7 @@ export const WINDOWS_SERVICE_METADATA = modernizationMetadata({
   name: "Windows Service to Worker Service",
   description:
     "Generates an additive Worker Service scaffold from a Roslyn service lifecycle inventory.",
+  category: "dotnet-modernization",
   sourceTechnology: "Windows Service",
   targetTechnology: ".NET Worker Service",
   sourceVersions: [".NET Framework Windows Service"],

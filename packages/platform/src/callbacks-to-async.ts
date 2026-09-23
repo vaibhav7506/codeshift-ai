@@ -12,6 +12,7 @@ export const CALLBACKS_TO_ASYNC_METADATA = modernizationMetadata({
   name: "Callbacks to async/await",
   description:
     "Converts narrow Node-style error-first callback wrappers while preserving error propagation and sequencing.",
+  category: "language-modules",
   sourceTechnology: "Node.js error-first callbacks",
   targetTechnology: "async/await",
   filesItMayModify: ["<approved-scope>/**/*.{js,ts}"],

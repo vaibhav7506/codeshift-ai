@@ -13,6 +13,7 @@ export const COMMONJS_TO_ESM_METADATA = modernizationMetadata({
   name: "CommonJS to ESM",
   description:
     "Converts statically provable CommonJS boundaries and reports dynamic or configuration-sensitive cases.",
+  category: "language-modules",
   sourceTechnology: "CommonJS",
   targetTechnology: "ECMAScript modules",
   sourceVersions: ["Node.js CommonJS"],

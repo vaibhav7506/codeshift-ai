@@ -6,6 +6,9 @@ export const JS_TO_TS_METADATA: RecipeMetadata = {
   name: "JavaScript to TypeScript",
   description:
     "Wraps the existing scoped JavaScript-to-TypeScript workflow in the versioned recipe contract.",
+  category: "language-modules",
+  executionMode: "transform",
+  visibility: "public",
   sourceTechnology: "JavaScript",
   targetTechnology: "TypeScript",
   supportedVersions: {

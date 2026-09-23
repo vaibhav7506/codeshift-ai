@@ -22,6 +22,18 @@ export type RecipeCapability =
 
 export type RecipeStepKind = "deterministic" | "ai-assisted";
 
+export type RecipeCategory =
+  | "language-modules"
+  | "backend-runtime"
+  | "frontend-styling"
+  | "tooling-quality"
+  | "dotnet-modernization"
+  | "assessment";
+
+export type RecipeExecutionMode = "transform" | "assessment";
+
+export type RecipeVisibility = "public" | "internal";
+
 export interface RecipeFile {
   path: string;
   content?: string;
@@ -119,6 +131,9 @@ export interface RecipeMetadata {
   version: string;
   name: string;
   description: string;
+  category: RecipeCategory;
+  executionMode: RecipeExecutionMode;
+  visibility: RecipeVisibility;
   sourceTechnology: string;
   targetTechnology: string;
   supportedVersions: {
@@ -204,6 +219,10 @@ export class RecipeRegistry {
     return [...this.registrations.values()]
       .filter((entry) => options.includeDisabled || this.isAvailable(entry))
       .sort((left, right) => left.metadata.name.localeCompare(right.metadata.name));
+  }
+
+  isRegistrationAvailable(registration: RecipeRegistration): boolean {
+    return this.isAvailable(registration);
   }
 
   resolveDependencyOrder(recipeIds: readonly string[]): MigrationRecipe[] {

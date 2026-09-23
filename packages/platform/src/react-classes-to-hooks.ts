@@ -14,6 +14,7 @@ export const REACT_CLASSES_TO_HOOKS_METADATA = modernizationMetadata({
   name: "React classes to hooks",
   description:
     "Converts supported React class components to functions while mapping state and lifecycle cleanup explicitly.",
+  category: "frontend-styling",
   sourceTechnology: "React class components",
   targetTechnology: "React hooks",
   filesItMayModify: ["<approved-scope>/**/*.{jsx,tsx}"],
