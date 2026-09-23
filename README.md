@@ -8,14 +8,16 @@ The platform supports JavaScript/TypeScript modernization, staged enterprise .NE
 
 ## Verified status
 
-- 72 automated tests across CLI, runner, analyzer, migrator, AI, governance, recipes, recovery, security, and production controls
+- 81 workspace tests plus a secret-scanner regression test across CLI, runner, analyzer, migrator, AI, governance, recipes, recovery, security, and production controls
 - TypeScript strict typecheck and ESLint across every workspace
-- Next.js production build with 34 application/API routes
+- Next.js production build with standalone static assets
 - 16 versioned modernization recipes
 - Versioned `/api/v1` surface and OpenAPI contract
 - Four validated deployment environment templates
 - Non-root, health-checked standalone container build
 - CI for tests, security scans, dependency audit, CodeQL, container build, SBOM, licence inventory, CLI packaging, and runner packaging
+
+See [verification results and remaining production gates](docs/baseline/verification-2026-09-23.md).
 
 ## Architecture
 
@@ -40,7 +42,7 @@ See [Architecture](docs/architecture.md), [Security](docs/security.md), and [Dep
 
 ## Requirements
 
-- Node.js 20+; Node.js 22 is used by CI and the container
+- Node.js 20.9+; Node.js 22 is used by CI and the container
 - npm 10+
 - Git
 - Optional .NET SDK on a capable runner for native .NET validation
