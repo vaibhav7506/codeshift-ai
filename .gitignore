@@ -14,3 +14,5 @@ coverage/
 .env.*.local
 !.env.example
 .dev.vars
+
+.vercel
