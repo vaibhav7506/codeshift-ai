@@ -18,7 +18,10 @@ const apiRateLimiter = new SlidingWindowRateLimiter(120, 60_000);
 export function requireApiPermission(
   request: Request,
   permission: EnterprisePermission,
-): TenantContext & { roles: EnterpriseRole[] } {
+): TenantContext & {
+  roles: EnterpriseRole[];
+  workspaceKind: "PERSONAL" | "ORGANIZATION";
+} {
   const identity = resolveIdentity(request);
   const { userId } = identity;
   if (!apiRateLimiter.allow(userId)) throw new ApiError("RATE_LIMITED", 429);
@@ -28,6 +31,7 @@ export function requireApiPermission(
     workspaceId: identity.workspaceId ?? personal.workspace.id,
     userId,
     roles: [identity.role],
+    workspaceKind: identity.workspaceKind,
   };
   const repository = new InMemoryGovernanceRepository();
   repository.saveOrganization({ ...personal.organization, id: context.organizationId });
@@ -35,6 +39,7 @@ export function requireApiPermission(
     ...personal.workspace,
     id: context.workspaceId,
     organizationId: context.organizationId,
+    kind: context.workspaceKind,
   });
   repository.saveMembership({
     organizationId: context.organizationId,
@@ -97,13 +102,20 @@ function resolveIdentity(request: Request): {
   organizationId?: string;
   workspaceId?: string;
   role: EnterpriseRole;
+  workspaceKind: "PERSONAL" | "ORGANIZATION";
 } {
   const userId = boundedHeader(request, "x-codeshift-user");
   const organizationId = boundedHeader(request, "x-codeshift-organization");
   const workspaceId = boundedHeader(request, "x-codeshift-workspace");
   const roleHeader = boundedHeader(request, "x-codeshift-role");
   const hasGatewayIdentity = !!(userId || organizationId || workspaceId || roleHeader);
-  if (!hasGatewayIdentity) return { userId: "personal-user", role: "OWNER" };
+  if (!hasGatewayIdentity) {
+    return {
+      userId: "personal-user",
+      role: "OWNER",
+      workspaceKind: "PERSONAL",
+    };
+  }
 
   const identitySecret = process.env.CODESHIFT_IDENTITY_SECRET;
   if (!identitySecret || !userId || !organizationId || !workspaceId || !roleHeader) {
@@ -122,6 +134,7 @@ function resolveIdentity(request: Request): {
     organizationId,
     workspaceId,
     role: roleHeader as EnterpriseRole,
+    workspaceKind: "ORGANIZATION",
   };
 }
 

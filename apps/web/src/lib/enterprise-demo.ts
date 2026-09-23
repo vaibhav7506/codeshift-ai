@@ -34,7 +34,7 @@ export const governancePages = {
     description: "Fail-closed guardrails evaluated before execution and pull request creation.",
     metrics: [
       { label: "Max risk", value: "80", detail: "Higher scores are blocked", tone: "warning" },
-      { label: "Required reviews", value: "2", detail: "For high-risk campaigns" },
+      { label: "Required reviews", value: "1", detail: "For high-risk campaigns" },
       { label: "Source sharing", value: "Blocked", detail: "Explicit consent required", tone: "success" },
     ],
     controls: ["Repository, branch, recipe, and AI allowlists", "Protected files, database files, and change-size limits", "Required tests, reviewers, vulnerability and license checks"],

@@ -13,7 +13,12 @@ import {
   authorize,
   bootstrapPersonalWorkspace,
   defaultRunnerIsolationPolicy,
+  defaultWorkspaceApprovalPolicy,
   evaluateWorkspacePolicy,
+  personalApprovalPolicy,
+  recalculateApprovalRequest,
+  toApprovalPolicy,
+  validateWorkspaceApprovalPolicy,
   verifyWebhookSignature,
   type ApprovalRequest,
   type WorkspacePolicy,
@@ -75,23 +80,68 @@ test("high-risk execution requires two distinct approvals and forbids self-appro
     validationPassed: true, approvals: [], status: "PENDING",
   };
   assert.throws(
-    () => approveRequest(request, { userId: "author", roles: ["APPROVER"] }),
+    () => approveRequest(request, { userId: "author", roles: ["APPROVER"] }, {
+      ...toApprovalPolicy(defaultWorkspaceApprovalPolicy("ORGANIZATION")),
+      highRiskApprovals: 2,
+    }),
     /cannot approve/,
   );
+  const twoReviewerPolicy = {
+    ...toApprovalPolicy(defaultWorkspaceApprovalPolicy("ORGANIZATION")),
+    highRiskApprovals: 2,
+  };
   const first = approveRequest(request, {
     userId: "approver-1", roles: ["APPROVER"], decidedAt: "2026-07-24T00:00:01.000Z",
-  });
+  }, twoReviewerPolicy);
   assert.equal(first.status, "PENDING");
   assert.throws(() => assertPullRequestGate({
     approval: first, policyAllowed: true, validationPassed: true,
   }), /completed approval/);
   const second = approveRequest(first, {
     userId: "approver-2", roles: ["APPROVER"], decidedAt: "2026-07-24T00:00:02.000Z",
-  });
+  }, twoReviewerPolicy);
   assert.equal(second.status, "APPROVED");
   assert.doesNotThrow(() => assertPullRequestGate({
     approval: second, policyAllowed: true, validationPassed: true,
   }));
+});
+
+test("Personal workspaces require one approval and allow the author to approve", () => {
+  const request: ApprovalRequest = {
+    id: "personal-approval", organizationId: "personal-user", workspaceId: "personal-user",
+    authorId: "user", riskScore: 95, category: "STANDARD",
+    validationPassed: true, approvals: [], status: "PENDING",
+  };
+  const approval = approveRequest(
+    request,
+    { userId: "user", roles: ["OWNER"] },
+    personalApprovalPolicy,
+  );
+  assert.equal(approval.approvals.length, 1);
+  assert.equal(approval.status, "APPROVED");
+});
+
+test("Personal workspaces cannot enable two-reviewer mode", () => {
+  assert.throws(
+    () => validateWorkspaceApprovalPolicy("PERSONAL", {
+      ...defaultWorkspaceApprovalPolicy("PERSONAL"),
+      highRiskApprovals: 2,
+    }),
+    /exactly one review/,
+  );
+});
+
+test("an existing Personal approval becomes approved after recalculation", () => {
+  const request: ApprovalRequest = {
+    id: "existing-approval", organizationId: "personal-user", workspaceId: "personal-user",
+    authorId: "user", riskScore: 90, category: "STANDARD",
+    validationPassed: true,
+    approvals: [{ userId: "user", decidedAt: "2026-07-24T00:00:00.000Z" }],
+    status: "PENDING",
+  };
+  const recalculated = recalculateApprovalRequest(request, personalApprovalPolicy);
+  assert.equal(recalculated.status, "APPROVED");
+  assert.deepEqual(recalculated.approvals, request.approvals);
 });
 
 test("specialized changes require a specialist approval", () => {

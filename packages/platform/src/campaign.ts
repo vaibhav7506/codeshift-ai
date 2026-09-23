@@ -22,8 +22,8 @@ export interface ApprovedScope {
 
 export interface CampaignStage {
   id: string;
-  recipeId: string;
-  recipeVersion: string;
+  recipeId?: string;
+  recipeVersion?: string;
   order: number;
   status: "PENDING" | "READY" | "RUNNING" | "COMPLETED" | "FAILED" | "ROLLED_BACK";
 }
@@ -50,6 +50,11 @@ export interface MigrationCampaign {
   repositoryId: string;
   name: string;
   selectedRecipes: Array<{ id: string; version: string }>;
+  recipeId?: string;
+  recipeVersion?: string;
+  recipeConfiguration?: Record<string, string | number | boolean | string[]>;
+  targetTechnology?: string;
+  targetVersion?: string;
   stages: CampaignStage[];
   dependencies: CampaignDependency[];
   approvedScope: ApprovedScope;
@@ -73,6 +78,11 @@ export interface CreateCampaignInput {
   repositoryId: string;
   name: string;
   selectedRecipes: Array<{ id: string; version: string }>;
+  recipeId?: string;
+  recipeVersion?: string;
+  recipeConfiguration?: Record<string, string | number | boolean | string[]>;
+  targetTechnology?: string;
+  targetVersion?: string;
   approvedScope: ApprovedScope;
   riskScore: number;
   estimatedAffectedFiles: number;
@@ -107,6 +117,18 @@ export function createMigrationCampaign(
   if (input.selectedRecipes.length === 0) {
     throw new Error("A campaign requires at least one recipe.");
   }
+  const explicitRecipeId = input.recipeId ?? input.selectedRecipes[0]?.id;
+  const explicitRecipeVersion =
+    input.recipeVersion ?? input.selectedRecipes[0]?.version;
+  if (!explicitRecipeId?.trim() || !explicitRecipeVersion?.trim()) {
+    throw new Error("A campaign requires an explicit recipe.");
+  }
+  if (
+    input.selectedRecipes[0]?.id !== explicitRecipeId ||
+    input.selectedRecipes[0]?.version !== explicitRecipeVersion
+  ) {
+    throw new Error("The campaign recipe must match its first execution stage.");
+  }
   if (input.approvedScope.paths.length === 0) {
     throw new Error("A campaign requires at least one approved path.");
   }
@@ -128,6 +150,8 @@ export function createMigrationCampaign(
 
   return {
     ...input,
+    recipeId: explicitRecipeId,
+    recipeVersion: explicitRecipeVersion,
     stages,
     dependencies,
     riskLevel: riskLevelForScore(input.riskScore),
@@ -138,6 +162,24 @@ export function createMigrationCampaign(
     createdAt: now,
     updatedAt: now,
     version: 1,
+  };
+}
+
+export function resolveCampaignRecipe(
+  campaign: Pick<MigrationCampaign, "recipeId" | "recipeVersion" | "selectedRecipes">,
+): { id: string; version: string; legacy: boolean } {
+  if (campaign.recipeId && campaign.recipeVersion) {
+    return {
+      id: campaign.recipeId,
+      version: campaign.recipeVersion,
+      legacy: false,
+    };
+  }
+  const selected = campaign.selectedRecipes[0];
+  return {
+    id: selected?.id ?? "js-to-ts",
+    version: selected?.version ?? "1.0.0",
+    legacy: true,
   };
 }
 

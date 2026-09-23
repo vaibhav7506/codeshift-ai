@@ -1,10 +1,15 @@
-import { approveRequest, type ApprovalCategory } from "@codeshift/platform/enterprise-runtime";
+import {
+  approveRequest,
+  toApprovalPolicy,
+  type ApprovalCategory,
+} from "@codeshift/platform/enterprise-runtime";
 import {
   apiError,
   assertMutationSecurity,
   requireApiPermission,
   secureJson,
 } from "@/lib/enterprise-api";
+import { getWorkspaceApprovalPolicy } from "@/lib/workspace-policy-store";
 
 export const runtime = "nodejs";
 
@@ -27,7 +32,7 @@ export async function POST(request: Request) {
     }, {
       userId: context.userId,
       roles: context.roles,
-    });
+    }, toApprovalPolicy(getWorkspaceApprovalPolicy(context)));
     return secureJson({ approval: result }, 201);
   } catch (error) {
     return apiError(error);

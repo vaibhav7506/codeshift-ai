@@ -16,19 +16,128 @@ export interface ApprovalPolicy {
   highRiskThreshold: number;
   requiredApprovals: number;
   highRiskApprovals: number;
+  authorCanApprove: boolean;
+  requireDistinctApprovers: boolean;
   specialistRoles: Record<Exclude<ApprovalCategory, "STANDARD">, string>;
 }
 
 export const defaultApprovalPolicy: ApprovalPolicy = {
   highRiskThreshold: 70,
   requiredApprovals: 1,
-  highRiskApprovals: 2,
+  highRiskApprovals: 1,
+  authorCanApprove: false,
+  requireDistinctApprovers: true,
   specialistRoles: {
     SECURITY: "SECURITY_REVIEWER",
     PLATFORM: "PLATFORM_ENGINEER",
     DATABASE: "DATABASE_REVIEWER",
   },
 };
+
+export const personalApprovalPolicy: ApprovalPolicy = {
+  ...defaultApprovalPolicy,
+  authorCanApprove: true,
+  requireDistinctApprovers: false,
+};
+
+export interface WorkspaceApprovalPolicy {
+  maximumRiskScore: number;
+  requiredApprovals: number;
+  highRiskApprovals: number;
+  authorCanApprove: boolean;
+  requireDistinctApprovers: boolean;
+  allowSourceCodeSharing: boolean;
+}
+
+export type WorkspaceKind = "PERSONAL" | "ORGANIZATION";
+
+export function defaultWorkspaceApprovalPolicy(
+  kind: WorkspaceKind,
+): WorkspaceApprovalPolicy {
+  return {
+    maximumRiskScore: 80,
+    requiredApprovals: 1,
+    highRiskApprovals: 1,
+    authorCanApprove: kind === "PERSONAL",
+    requireDistinctApprovers: kind === "ORGANIZATION",
+    allowSourceCodeSharing: false,
+  };
+}
+
+export function validateWorkspaceApprovalPolicy(
+  kind: WorkspaceKind,
+  policy: WorkspaceApprovalPolicy,
+): WorkspaceApprovalPolicy {
+  if (!Number.isInteger(policy.maximumRiskScore) ||
+      policy.maximumRiskScore < 0 ||
+      policy.maximumRiskScore > 100) {
+    throw new Error("Maximum risk score must be a whole number between 0 and 100.");
+  }
+  for (const [label, value] of [
+    ["Low and medium required reviews", policy.requiredApprovals],
+    ["High and critical required reviews", policy.highRiskApprovals],
+  ] as const) {
+    if (!Number.isInteger(value) || value < 1 || value > 10) {
+      throw new Error(`${label} must be a whole number between 1 and 10.`);
+    }
+  }
+  if (kind === "PERSONAL") {
+    if (policy.requiredApprovals !== 1 || policy.highRiskApprovals !== 1) {
+      throw new Error("Personal workspaces require exactly one review.");
+    }
+    if (!policy.authorCanApprove) {
+      throw new Error("Campaign author approval must remain enabled in Personal workspaces.");
+    }
+    if (policy.requireDistinctApprovers) {
+      throw new Error("Distinct approvers cannot be required in a Personal workspace.");
+    }
+  }
+  return structuredClone(policy);
+}
+
+export function toApprovalPolicy(
+  policy: WorkspaceApprovalPolicy,
+): ApprovalPolicy {
+  return {
+    ...defaultApprovalPolicy,
+    requiredApprovals: policy.requiredApprovals,
+    highRiskApprovals: policy.highRiskApprovals,
+    authorCanApprove: policy.authorCanApprove,
+    requireDistinctApprovers: policy.requireDistinctApprovers,
+  };
+}
+
+export function requiredApprovalsForRisk(
+  request: Pick<ApprovalRequest, "riskScore">,
+  policy: ApprovalPolicy,
+): number {
+  return request.riskScore >= policy.highRiskThreshold
+    ? policy.highRiskApprovals
+    : policy.requiredApprovals;
+}
+
+export function countValidApprovals(
+  request: Pick<ApprovalRequest, "approvals">,
+  policy: Pick<ApprovalPolicy, "requireDistinctApprovers">,
+): number {
+  return policy.requireDistinctApprovers
+    ? new Set(request.approvals.map((approval) => approval.userId)).size
+    : request.approvals.length;
+}
+
+export function recalculateApprovalRequest(
+  request: ApprovalRequest,
+  policy: ApprovalPolicy,
+): ApprovalRequest {
+  if (request.status === "REJECTED") return structuredClone(request);
+  return {
+    ...structuredClone(request),
+    status: countValidApprovals(request, policy) >=
+      requiredApprovalsForRisk(request, policy)
+      ? "APPROVED"
+      : "PENDING",
+  };
+}
 
 export function approveRequest(
   request: ApprovalRequest,
@@ -37,8 +146,13 @@ export function approveRequest(
 ): ApprovalRequest {
   if (request.status !== "PENDING") throw new Error("Approval request is no longer pending.");
   if (!request.validationPassed) throw new Error("Required validation must pass before approval.");
-  if (request.authorId === decision.userId) throw new Error("Authors cannot approve their own request.");
-  if (request.approvals.some((item) => item.userId === decision.userId)) {
+  if (!policy.authorCanApprove && request.authorId === decision.userId) {
+    throw new Error("Authors cannot approve their own request.");
+  }
+  if (
+    policy.requireDistinctApprovers &&
+    request.approvals.some((item) => item.userId === decision.userId)
+  ) {
     throw new Error("An approver can only approve once.");
   }
   if (!decision.roles.includes("APPROVER") && !decision.roles.includes("OWNER")) {
@@ -54,13 +168,13 @@ export function approveRequest(
     ...request.approvals,
     { userId: decision.userId, decidedAt: decision.decidedAt ?? new Date().toISOString() },
   ];
-  const required = request.riskScore >= policy.highRiskThreshold
-    ? policy.highRiskApprovals
-    : policy.requiredApprovals;
+  const required = requiredApprovalsForRisk(request, policy);
   return {
     ...request,
     approvals,
-    status: approvals.length >= required ? "APPROVED" : "PENDING",
+    status: countValidApprovals({ approvals }, policy) >= required
+      ? "APPROVED"
+      : "PENDING",
   };
 }
 

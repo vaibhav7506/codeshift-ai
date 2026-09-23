@@ -1,4 +1,5 @@
 import { CheckCircle2, ShieldCheck } from "lucide-react";
+import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
 import type { GovernanceMetric } from "@/lib/enterprise-demo";
@@ -10,16 +11,23 @@ export function GovernanceOverview({
   description,
   metrics,
   controls,
+  action,
 }: {
   eyebrow: string;
   title: string;
   description: string;
   metrics: GovernanceMetric[];
   controls: string[];
+  action?: ReactNode;
 }) {
   return (
     <div className="space-y-5">
-      <PageHeading eyebrow={eyebrow} title={title} description={description} />
+      <PageHeading
+        eyebrow={eyebrow}
+        title={title}
+        description={description}
+        action={action}
+      />
       <div className="grid gap-4 md:grid-cols-3">
         {metrics.map((metric) => (
           <Card key={metric.label} className="shadow-none">
