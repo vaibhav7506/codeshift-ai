@@ -1,7 +1,11 @@
+import { MigrationPlanInputError } from "@codeshift/migrator";
 import {
-  generateMigrationPlan,
-  MigrationPlanInputError,
-} from "@codeshift/migrator";
+  createDefaultRecipeRegistry,
+  createMigrationCampaign,
+  transitionCampaign,
+} from "@codeshift/platform/runtime";
+import { getRecipeCatalogEntry } from "@codeshift/platform/recipe-catalog-runtime";
+import { randomUUID } from "node:crypto";
 import type {
   AnalysisRiskLevel,
   PackageManager,
@@ -9,34 +13,89 @@ import type {
   RepositoryAnalysis,
 } from "@codeshift/shared";
 import { NextResponse } from "next/server";
-import { apiError, requireApiPermission } from "@/lib/enterprise-api";
+import {
+  apiError,
+  assertMutationSecurity,
+  requireApiPermission,
+} from "@/lib/enterprise-api";
+import { saveCampaign } from "@/lib/campaign-store";
 
 export const runtime = "nodejs";
 
 interface GeneratePlanRequest {
   analysis: RepositoryAnalysis;
-  selectedScope?: string;
+  selectedScope: string;
+  recipeId: string;
+  recipeVersion: string;
+  recipeConfiguration?: Record<string, string | number | boolean | string[]>;
 }
 
 export async function POST(request: Request) {
   try {
-    requireApiPermission(request, "CAMPAIGN_MANAGE");
+    assertMutationSecurity(request);
+    const context = requireApiPermission(request, "CAMPAIGN_MANAGE");
     const body: unknown = await request.json();
 
     if (!isGeneratePlanRequest(body)) {
       return errorResponse(
         "INVALID_PLAN_REQUEST",
-        "Provide a valid repository analysis and optional scope.",
+        "Provide a valid repository analysis, scope, and selected recipe.",
         400,
       );
     }
 
-    const plan = generateMigrationPlan({
+    const catalogRecipe = getRecipeCatalogEntry(body.recipeId);
+    if (
+      !catalogRecipe ||
+      catalogRecipe.version !== body.recipeVersion ||
+      catalogRecipe.status !== "active"
+    ) {
+      return errorResponse(
+        "RECIPE_NOT_EXECUTABLE",
+        "The selected recipe is not enabled for execution.",
+        422,
+      );
+    }
+    const recipe = createDefaultRecipeRegistry().get(body.recipeId, body.recipeVersion);
+    const plan = await recipe.plan({
+      repositoryId: body.analysis.repoUrl,
       analysis: body.analysis,
-      selectedScope: body.selectedScope,
+      files: [],
+      approvedScope: body.selectedScope,
+    });
+    const campaignId = `campaign-${randomUUID()}`;
+    const created = createMigrationCampaign({
+      id: campaignId,
+      organizationId: context.organizationId,
+      workspaceId: context.workspaceId,
+      repositoryId: body.analysis.repoUrl,
+      name: `${body.analysis.repo} · ${catalogRecipe.name}`,
+      selectedRecipes: [{ id: body.recipeId, version: body.recipeVersion }],
+      recipeId: body.recipeId,
+      recipeVersion: body.recipeVersion,
+      recipeConfiguration: body.recipeConfiguration,
+      targetTechnology: catalogRecipe.targetTechnology,
+      approvedScope: { paths: [body.selectedScope], protectedPaths: [".github/**"] },
+      riskScore: plan.estimatedRisk === "HIGH" ? 75 : plan.estimatedRisk === "MEDIUM" ? 50 : 25,
+      estimatedAffectedFiles: plan.affectedFilesEstimate,
+      validationRequirements: [...catalogRecipe.validationRequirements],
+    });
+    const analysing = transitionCampaign(created, "ANALYSING");
+    const ready = transitionCampaign(analysing, "READY_FOR_REVIEW");
+    saveCampaign({
+      campaign: ready,
+      repository: body.analysis.repoUrl,
+      targetBranch: `codeshift-ai/${body.recipeId}-${campaignId.slice(-8)}`,
+      runnerStatus: "No runner connected",
+      authorId: context.userId,
+      approvalStageStatus: "PENDING",
     });
 
-    return NextResponse.json({ plan });
+    return NextResponse.json({
+      plan,
+      campaignId,
+      recipe: { id: catalogRecipe.id, name: catalogRecipe.name, version: catalogRecipe.version },
+    });
   } catch (error) {
     if (error instanceof Error && "code" in error && error.code === "FORBIDDEN") {
       return apiError(error);
@@ -72,9 +131,17 @@ function isGeneratePlanRequest(value: unknown): value is GeneratePlanRequest {
   }
 
   return (
-    value.selectedScope === undefined ||
-    (typeof value.selectedScope === "string" &&
-      value.selectedScope.length <= 300)
+    typeof value.selectedScope === "string" &&
+    value.selectedScope.trim().length > 0 &&
+    value.selectedScope.length <= 300 &&
+    typeof value.recipeId === "string" &&
+    /^[a-z0-9][a-z0-9-]{0,99}$/.test(value.recipeId) &&
+    typeof value.recipeVersion === "string" &&
+    value.recipeVersion.length > 0 &&
+    value.recipeVersion.length <= 50 &&
+    (value.recipeConfiguration === undefined ||
+      (isRecord(value.recipeConfiguration) &&
+        Object.keys(value.recipeConfiguration).length <= 30))
   );
 }
 

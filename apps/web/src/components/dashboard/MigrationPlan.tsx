@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import type {
   AnalysisRiskLevel,
   MigrationPlan as MigrationPlanData,
@@ -21,12 +22,19 @@ import { StatusPill } from "@/components/ui/StatusPill";
 
 export function MigrationPlan({
   plan,
+  campaignId,
+  recipe,
   onEditScope,
 }: {
   plan: MigrationPlanData;
+  campaignId: string;
+  recipe: { id: string; name: string; version: string };
   onEditScope: () => void;
 }) {
   const [approved, setApproved] = useState(false);
+  const [approving, setApproving] = useState(false);
+  const [approvalError, setApprovalError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     setApproved(false);
@@ -41,7 +49,7 @@ export function MigrationPlan({
               id="migration-plan-title"
               className="text-sm font-semibold text-text-primary"
             >
-              JavaScript → TypeScript migration plan
+              {recipe.name} migration plan
             </h2>
             <StatusPill tone={riskTone(plan.estimatedRisk)} dot>
               {plan.estimatedRisk}
@@ -167,7 +175,7 @@ export function MigrationPlan({
             </p>
             <p className="mt-1 text-[10px] leading-4 text-text-muted">
               {approved
-                ? "Approval is recorded in this browser only. No files have changed."
+                ? "Approval is saved server-side. Opening the execution guide."
                 : "Review the scope, risk, commands, and steps before approval."}
             </p>
           </div>
@@ -179,14 +187,53 @@ export function MigrationPlan({
           </Button>
           <Button
             size="sm"
-            onClick={() => setApproved(true)}
-            disabled={approved}
+            onClick={async () => {
+              if (approved || approving) return;
+              setApproving(true);
+              setApprovalError(null);
+              try {
+                const response = await fetch(
+                  `/api/campaigns/${encodeURIComponent(campaignId)}/approve`,
+                  {
+                    method: "POST",
+                    headers: { "x-codeshift-csrf": "1" },
+                  },
+                );
+                const body = (await response.json()) as {
+                  readyForExecution?: boolean;
+                  redirectTo?: string;
+                  message?: string;
+                  error?: { message?: string };
+                };
+                if (!response.ok || !body.readyForExecution || !body.redirectTo) {
+                  throw new Error(
+                    body.message ??
+                      body.error?.message ??
+                      "The approval could not be saved.",
+                  );
+                }
+                setApproved(true);
+                router.push(`${body.redirectTo}?approved=1`);
+              } catch (caughtError) {
+                setApprovalError(
+                  caughtError instanceof Error
+                    ? caughtError.message
+                    : "The approval could not be saved.",
+                );
+              } finally {
+                setApproving(false);
+              }
+            }}
+            disabled={approved || approving}
           >
             {approved ? <Check className="size-3.5" /> : null}
-            {approved ? "Plan approved" : "Approve plan"}
+            {approved ? "Plan approved" : approving ? "Saving…" : "Approve plan"}
           </Button>
         </div>
       </Card>
+      {approvalError ? (
+        <p role="alert" className="mt-2 text-xs text-danger">{approvalError}</p>
+      ) : null}
     </section>
   );
 }
